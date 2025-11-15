@@ -3,6 +3,7 @@ import { x } from "../../xml";
 
 export * from "./recipe"
 export * from "./weapon"
+export * from "./attack"
 export * from "./ability"
 
 

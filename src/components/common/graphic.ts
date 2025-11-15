@@ -1,13 +1,29 @@
 import { SimpleComponent } from "../";
 import { x } from "@/utils";
 
-export const GraphicComponent = (bundledTextures: string, graphic: GraphicType, shader?: ShaderType) => new SimpleComponent("GraphicComponent",[
+export const GraphicComponent = (bundledTextures: string, graphic: GraphicType, props?: GraphicProps) => new SimpleComponent("GraphicComponent", [
     x("graphicData", [
         x("texPath", bundledTextures),
         x("graphicClass", graphic),
-        x("shaderType", shader),
+        x("shaderType", props?.shader),
+        x("drawSize", props?.scale),
+        x("drawOffsetNorth", props?.offset?.north),
+        x("drawOffsetEast", props?.offset?.east),
+        x("drawOffsetSouth", props?.offset?.south),
+        x("drawOffsetWest", props?.offset?.west),
     ])
 ], [])
+
+export interface GraphicProps {
+    shader?: ShaderType;
+    scale?: number;
+    offset?: {
+        north?: [number, number, number]
+        east?: [number, number, number]
+        south?: [number, number, number]
+        west?: [number, number, number]
+    }
+}
 
 export enum GraphicType {
     MoteRandomWithAgeSecs = "GraphicMote_RandomWithAgeSecs",

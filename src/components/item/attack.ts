@@ -1,6 +1,6 @@
 import { x, xls } from "@/xml";
-import { SimpleComponent } from "..";
-import { BodyPartGroupDefId, DamageDefId, ToolCapacityDefId } from "@/defs";
+import { SimpleComponent, xStateBase } from "..";
+import { BodyPartGroupDefId, DamageDefId, SoundDefId, ThingDefId, ToolCapacityDefId, VanillaThingDef } from "@/defs";
 
 // Attack
 export const MeleeAttackComponent = (props: MeleeAttack[]) => new SimpleComponent("MeleeAttack", [
@@ -42,21 +42,49 @@ export interface MeleeAttack {
 }
 
 // Ranged Attack
-export const RangedAttackComponent = (props: RangedAttack[]) => new SimpleComponent("RangedAttack", [
-    
+export const RangedAttackComponent = (props: RangedAttack) => new SimpleComponent("RangedAttack", [
+    x("verbs", [x("li", [
+        x("verbClass", props.verbClass),
+        x("hasStandardCommand", props.hasStandardCommand ?? true),
+        x("defaultProjectile", (props.defaultProjectile ?? VanillaThingDef.Bullet_AssaultRifle).id),
+        x("warmupTime", props.warmupTime),
+        x("range", props.range),
+        x("burstShotCount", props.burstShotCount),
+        x("ticksBetweenBurstShots", props.rpm && 3600 / props.rpm),
+        x("soundCast", props.soundCast?.id),
+        x("soundCastTail", props.soundCastTail?.id),
+        x("muzzleFlashScale", props.muzzleFlashScale),
+    ])]),
+    xStateBase({
+        AccuracyTouch: props.accuracy?.touch,
+        AccuracyShort: props.accuracy?.short,
+        AccuracyMedium: props.accuracy?.medium,
+        AccuracyLong: props.accuracy?.long,
+        RangedWeapon_Cooldown: props.cooldown,
+    })
 ], ["GenericWeapon"]);
 
 export interface RangedAttack {
-    verbClass: VerbClass;
-    hasStandardCommand: string;
-    defaultProjectile: string;
-    warmupTime: string;
-    range: string;
-    burstShotCount: string;
-    ticksBetweenBurstShots: string;
-    soundCast: string;
-    soundCastTail: string;
-    muzzleFlashScale: string;
+    verbClass?: VerbClass;
+    hasStandardCommand?: boolean;
+    defaultProjectile?: ThingDefId;
+    warmupTime?: number;
+    cooldown?: number;
+    range?: number;
+    burstShotCount?: number;
+    /**
+     * @max 3600
+     */
+    rpm?: number
+    soundCast?: SoundDefId;
+    soundCastTail?: SoundDefId;
+    muzzleFlashScale?: number;
+    accuracy?: {
+        touch?: number;
+        short?: number;
+        medium?: number;
+        long?: number;
+    };
 }
 
 export enum VerbClass {
@@ -73,5 +101,5 @@ export enum VerbClass {
     Verb_Shoot = "Verb_Shoot",
     Verb_ShootOneUse = "Verb_ShootOneUse",
     Verb_Smokepop = "Verb_Smokepop",
-    Verb_Spawn =  "Verb_Spawn",
+    Verb_Spawn = "Verb_Spawn",
 }

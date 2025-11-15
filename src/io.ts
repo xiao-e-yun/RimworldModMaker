@@ -1,11 +1,11 @@
 import { copyFileSync, existsSync, mkdirSync, writeFileSync } from "fs";
-import { ContextWithoutFunctions, XmlNode, random } from "@/utils";
+import { $console, ContextWithoutFunctions, XmlNode, random } from "@/utils";
 
 export const IO_CONTEXT_BINDINGS = { getPath, writeXmlFile, copyFile, bundleTextures } as const;
 
 export function getPath(ctx: ContextWithoutFunctions, path: string) {
     if (path.startsWith("/")) {
-        console.error(`Path should not start with '/': ${path}`);
+        $console.error(`Path should not start with '/': ${path}`);
         path = path.slice(1);
     }
     return ctx.appSettings.outputPath + "/" + path;
@@ -22,7 +22,7 @@ export function copyFile(ctx: ContextWithoutFunctions, src: string, dest: string
     const normalizedDest = getPath(ctx, dest);
 
     if (!existsSync(src)) {
-        console.error(`Source file does not exist: ${src}`);
+        $console.error(`Source file does not exist: ${src}`);
     } else {
         createDirectoryBasedFile(normalizedDest);
         copyFileSync(src, normalizedDest);
@@ -35,10 +35,13 @@ function createDirectoryBasedFile(path: string) {
     mkdirSync(cleanedPath, { recursive: true });
 }
 
-
 export function bundleTextures(ctx: ContextWithoutFunctions, sources: string | string[]) {
+    const sourcesKey = Array.isArray(sources) ? sources.join(",") : sources;
+    if (ctx.textureAssets.has(sourcesKey)) return ctx.textureAssets.get(sourcesKey)!;
+
     const textureId = random();
     const texurePath = `${ctx.appSettings.id}/${textureId}`;
+    ctx.textureAssets.set(sourcesKey, texurePath);
 
     if (!Array.isArray(sources)) {
         const ext = sources.split(".").pop();

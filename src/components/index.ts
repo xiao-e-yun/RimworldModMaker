@@ -1,5 +1,6 @@
-import { x, xls, XmlChild, XmlNode } from "@/utils";
-import { map } from "lodash-es";
+import { $console, x, XmlChild, XmlNode } from "@/utils";
+import { difference, map, uniq } from "lodash-es";
+import { exit } from "process";
 
 export * from "./common/"
 export * from "./item/"
@@ -58,11 +59,11 @@ export function registerComponents(def: XmlNode, components: Component[]) {
 
     for (const component of components) {
         if (loadedComps.has(component.id)) {
-            console.warn(`Duplicate component registration detected.`);
-            console.warn(`  Skipping component to avoid conflicts.`);
-            console.warn(`  Definition: ${def.get("defName")?.text()}`);
-            console.warn(`  Component: ${component.id}`);
-            console.warn(`  Loaded components: ${[...loadedComps].join(", ")}`);
+            $console.warn(`Duplicate component registration detected.`);
+            $console.warn(`  Skipping component to avoid conflicts.`);
+            $console.warn(`  Definition: ${def.get("defName")?.text()}`);
+            $console.warn(`  Component: ${component.id}`);
+            $console.warn(`  Loaded components: ${[...loadedComps].join(", ")}`);
             continue;
         }
 
@@ -71,19 +72,26 @@ export function registerComponents(def: XmlNode, components: Component[]) {
         required.push(...component.required);
     }
 
-    if (required.length > 0) requiredComponents(required, components);
-}
-
-export function requiredComponents(required: string[], components: Component[]) {
-    const requiredSet = new Set(required);
-    for (const component of components) {
-        if (requiredSet.has(component.id)) continue
-        console.warn(`Required component missing: ${component.id}`);
-        console.warn(`  Make sure to include this component in the components array.`);
-        console.warn(`  Provided components: ${components.map(c => c.id).join(", ")}`);
-        console.warn(`  Required components: ${[...requiredSet].join(", ")}`);
-        throw new Error(`Missing required component: ${component.id}`);
+    if (required.length > 0 && !requiredComponents(required, components)) {
+        $console.error(`Component registration failed due to missing required components.`);
+        $console.error(`  Definition: ${def.get("defName")?.text()}`);
+        exit(1);
     }
 }
 
-export const xStateBase = (props: Record<string, XmlChild | undefined>) => x("statBases", xls(map(props, (value, key) => x(key, value))));
+export function requiredComponents(requiredList: string[], components: Component[]) {
+    const componentSet = map(components, 'id');
+    const uniqueRequiredList = uniq(requiredList);
+    const missing = difference(uniqueRequiredList, componentSet);
+
+    if (missing.length > 0) {
+        $console.error(`Required component missing: ${missing.join(", ")}`);
+        $console.error(`  Make sure to include this component in the components array.`);
+        $console.error(`  Provided components: ${components.map(c => c.id).join(", ")}`);
+        $console.error(`  Required components: ${uniqueRequiredList.join(", ")}`);
+        return false
+    }
+    return true
+}
+
+export const xStateBase = (props: Record<string, XmlChild | undefined>) => x("statBases", map(props, (value, key) => x(key, value)));

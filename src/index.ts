@@ -1,5 +1,5 @@
 import { chain, kebabCase } from "lodash";
-import { bindContext, Context, CONTEXT_BINDINGS } from "@/utils";
+import { bindContext, $console, Context, CONTEXT_BINDINGS } from "@/utils";
 import { x, xls } from "@/xml";
 import { existsSync, rmdirSync } from "fs";
 
@@ -19,21 +19,22 @@ export function defineMod(
             outputPath: options.output || `./output/${options.id}`,
         },
         defsTree: {},
+        textureAssets: new Map<string, string>(),
     }, CONTEXT_BINDINGS)
 
     if (existsSync(context.appSettings.outputPath)) {
-        if (!options.clean) return console.error(`Output directory already exists: ${context.appSettings.outputPath}, use the 'clean' option to overwrite.`);
-        console.warn(`Cleaning output directory: ${context.appSettings.outputPath}`);
+        if (!options.clean) return $console.error(`Output directory already exists: ${context.appSettings.outputPath}, use the 'clean' option to overwrite.`);
+        $console.warn(`Cleaning output directory: ${context.appSettings.outputPath}`);
         try {
             rmdirSync(context.appSettings.outputPath, { recursive: true });
         } catch (e) {
-            console.warn(`Failed to clean output directory: ${e}`);
+            $console.warn(`Failed to clean output directory: ${e}`);
         }
     }
 
 
-    console.log(`Building mod: ${options.name} (${options.id})`);
-    console.log(`Writing About.xml...`);
+    $console.log(`Building mod: ${options.name} (${options.id})`);
+    $console.log(`Writing About.xml...`);
     const firstAuthor = Array.isArray(options.author) ? options.author[0] : options.author;
     context.writeXmlFile(`About/About.xml`,
         x("ModMetaData", [
@@ -46,32 +47,43 @@ export function defineMod(
         ])
     );
 
-    console.log(`Copying icon and preview files...`);
+    $console.log(`Copying icon and preview files...`);
     if (options.iconPath) context.copyFile(options.iconPath, `About/ModIcon.png`);
     if (options.previewPath) context.copyFile(options.previewPath, `About/Preview.png`);
 
-    console.log(`Setting up mod...`);
+    $console.log(`Setting up mod...`);
     setup(context);
 
-    console.log(`Writing definitions...`);
+    $console.log(`Writing definitions...`);
     const defs = Object.values(context.defsTree).flat();
     context.writeXmlFile(`Defs/Defs.xml`, x("Defs", defs));
 
-    console.log(`Mod build completed: ${context.appSettings.outputPath}`);
+    $console.log(`Mod build completed: ${context.appSettings.outputPath}`);
 
     const tree = Object.entries(context.defsTree);
     if (tree.length === 0) return;
 
     tree.sort(([a], [b]) => a.localeCompare(b));
-    console.log(`Definitions tree:`);
+    $console.log(`Definitions tree:`);
 
+    const registered = new Set<string>();
     for (const [type, nodes] of tree) {
-        console.log(`* [${type}]`);
-        chain(nodes)
+        $console.log(`* [${type}]`);
+        const hasDuplicates = chain(nodes)
             .map(n => n.get("defName")?.text() || "<unnamed>")
             .sortBy()
-            .forEach(defName => console.log(`  |- ${defName}`))
+            .some(defName => {
+                if (registered.has(defName)) {
+                    $console.error(`Duplicate defName detected: ${defName}`);
+                    $console.error(`  Each definition must have a unique defName.`);
+                    return true;
+                }
+                $console.log(`  |- ${defName}`)
+                registered.add(defName);
+                return false
+            })
             .value();
+        if (hasDuplicates) return
     }
 }
 
