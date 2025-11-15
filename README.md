@@ -23,4 +23,4 @@ bun run build
 
 ## License
 
-MIT
+BSD-3-Clause license
