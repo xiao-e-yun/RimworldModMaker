@@ -7,8 +7,7 @@ Extract definitions from RimWorld XML Def files and generate TypeScript enum fil
 import os
 import xml.etree.ElementTree as ET
 from typing import Dict, List, Optional
-from dataclasses import dataclass, asdict
-import json
+from dataclasses import dataclass
 from pathlib import Path
 
 # Configuration Constants
@@ -85,11 +84,7 @@ class RimWorldDefDumper:
         def_info.parent = element.get('ParentName')
         abstract_attr = element.get('Abstract')
         def_info.abstract = abstract_attr == 'True' if abstract_attr else False
-        
-        # If no Name attribute but has Abstract attribute, also treat as abstract
-        if def_info.abstract or (def_info.name and not def_info.parent):
-            def_info.abstract = True
-        
+
         # Get child elements
         defname_elem = element.find('defName')
         if defname_elem is not None and defname_elem.text:
@@ -105,7 +100,7 @@ class RimWorldDefDumper:
         elif label_elem is not None and label_elem.text:
             # Convert \n to actual newlines
             def_info.label = label_elem.text.strip().replace('\\n', '\n')
-        
+
         # No defName means it must be Abstract
         if not def_info.defName:
             def_info.abstract = True
@@ -145,6 +140,7 @@ class RimWorldDefDumper:
                 defs = self.results[def_type]
                 
                 # Generate type alias - using string literal generic
+                f.write(f'/** @reference {self.prefix}{def_type} */\n')
                 f.write(f'export type {def_type}Id = DefId<"{def_type}">\n')
                 
                 # Generate enum
@@ -192,7 +188,7 @@ class RimWorldDefDumper:
                         if i < len(abstract_defs) - 1:
                             f.write('  //==========================\n')
                 
-                f.write('}\n\n')
+                f.write('} as const\n\n')
         
         print(f'Generated TypeScript file: {self.output_path}')
     
