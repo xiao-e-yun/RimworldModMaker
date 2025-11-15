@@ -1,26 +1,19 @@
-# bun starter
+# RimWorld Mod Maker
 
-## Getting Started
+TypeScript 框架，用於以程式化方式建立 RimWorld 模組。
 
-Click the [Use this template](https://github.com/wobsoriano/bun-lib-starter/generate) button to create a new repository with the contents starter.
+## 專案結構
 
-OR
+- defs/ 定義系統（defs）- RimWorld 各種定義類型
+- components/ 組件系統（components）- 模組化的定義組件
+- utils.ts 工具函數與類型定義 (並重新導入下列)
+    - xml.ts XML 生成與操作工具
+    - io.ts 檔案相關操作工具
 
-Run `bun create wobsoriano/bun-lib-starter ./my-lib`.
+### 小工具集
 
-## Setup
-
+#### `dumper.py`
+從 RimWorld 遊戲資料目錄提取 XML 定義並生成 TypeScript 類型檔案。 (src/defs/vanilla.ts)
 ```bash
-# install dependencies
-bun install
-
-# test the app
-bun test
-
-# build the app, available under dist
-bun run build
+python tools/dumper.py
 ```
-
-## License
-
-BSD-3-Clause license
