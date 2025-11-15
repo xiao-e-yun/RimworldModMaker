@@ -1,10 +1,17 @@
 import { DEFS_CONTEXT_BINDINGS } from '@/defs';
 import { IO_CONTEXT_BINDINGS } from '@/io';
 import { XmlNode } from '@/utils';
+import { CustomInstance } from 'better-logging';
+import { DecoratedInstance } from 'better-logging/dist/lib/interfaces/decoratedInstance';
+import { randomUUID } from 'crypto';
 
 export * from "@/io"
 export * from "@/xml"
-export * from "@/defs"
+
+export const $console = ((o) => {
+    CustomInstance(globalThis.console)(o);
+    return o as DecoratedInstance
+})({})
 
 // Define context and bindings here
 export const CONTEXT_BINDINGS = { ...IO_CONTEXT_BINDINGS, ...DEFS_CONTEXT_BINDINGS } as const
@@ -16,6 +23,7 @@ export interface ContextWithoutFunctions {
         outputPath: string;
     }
     defsTree: Record<string, XmlNode[]>;
+    textureAssets: Map<string, string>;
 }
 export type Context = ReturnType<typeof bindContext<ContextWithoutFunctions, typeof CONTEXT_BINDINGS>>
 
@@ -34,6 +42,6 @@ export function bindContext<T extends ContextWithoutFunctions, Fns extends Recor
 }
 
 // Utility functions
-export const random = () => (Math.random() + 1).toString(36).substring(7);
+export const random = randomUUID
 
 export const toVec = (arr: number[]) => `(${arr.join(", ")})`;
