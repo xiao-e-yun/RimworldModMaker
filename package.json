@@ -1,11 +1,11 @@
 {
-  "name": "my-lib",
+  "name": "rimworld-mod-maker",
   "type": "module",
   "version": "0.0.0",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "description": "",
+  "description": "A TypeScript library for RimWorld modding",
   "exports": {
     "types": "./dist/index.d.ts",
     "import": "./dist/index.js",
@@ -13,24 +13,38 @@
   },
   "scripts": {
     "build": "bun run build.ts",
+    "build-type": "tsc && tsc-alias",
+    "build-docs": "typedoc",
     "prepublishOnly": "bun run build"
   },
   "files": [
     "dist"
   ],
   "keywords": [
+    "rimworld",
+    "modding",
+    "typescript",
+    "library",
     "bun"
   ],
-  "license": "MIT",
-  "homepage": "https://github.com/wobsoriano/pkg-name#readme",
+  "license": "BSD-3-Clause license",
+  "homepage": "https://github.com/xiao-e-yun/RimworldModMaker#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wobsoriano/pkg-name.git"
+    "url": "git+https://github.com/xiao-e-yun/RimworldModMaker.git"
   },
-  "bugs": "https://github.com/wobsoriano/pkg-name/issues",
-  "author": "Robert Soriano <sorianorobertc@gmail.com>",
+  "bugs": "https://github.com/xiao-e-yun/RimworldModMaker/issues",
+  "author": "xiao-e-yun <a0970323059@gmail.com>",
+  "dependencies": {
+    "lodash-es": "^4.17.21"
+  },
   "devDependencies": {
-    "bun-plugin-dts": "^0.3.0",
-    "@types/bun": "^1.1.10"
+    "@types/bun": "latest",
+    "@types/lodash-es": "^4.17.12",
+    "@types/node": "^24.10.1",
+    "tsc-alias": "^1.8.16",
+    "typedoc": "^0.28.14",
+    "typedoc-theme-oxide": "^0.2.0",
+    "typescript": "^5.0.0"
   }
 }

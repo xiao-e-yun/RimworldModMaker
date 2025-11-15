@@ -1,0 +1,11 @@
+{
+  "entryPoints": [
+    "src/*"
+  ],
+  "entryPointStrategy": "expand",
+  "plugin": ["typedoc-theme-oxide"],
+  "theme": "oxide",
+  "tsconfig": "./tsconfig.json",
+  "name": "RimWorld Mod Maker",
+  "out": "docs",
+}
