@@ -20,3 +20,30 @@ jobs:
       - run: npx changelogithub
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+  
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: setup-bun
+        name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - id: install-deps
+        name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - id: test
+        name: Run test
+        run: bun run build
+
+      - id: get-version
+        run: npm version $(git describe --tags --abbrev=0) --no-git-tag-version
+
+      - run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
