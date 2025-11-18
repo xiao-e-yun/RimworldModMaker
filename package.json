@@ -14,8 +14,7 @@
   "scripts": {
     "build": "bun run build.ts",
     "build-type": "tsc && tsc-alias",
-    "build-docs": "typedoc",
-    "prepublishOnly": "bun run build"
+    "build-docs": "typedoc"
   },
   "files": [
     "dist"
