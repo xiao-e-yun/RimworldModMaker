@@ -45,7 +45,7 @@ jobs:
           //registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}
           EOF
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - id: install-deps
         name: Install dependencies
@@ -60,6 +60,8 @@ jobs:
         run: npm version $(git describe --tags --abbrev=0) --no-git-tag-version
 
       - run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} 
 
   docs:
     runs-on: ubuntu-latest
