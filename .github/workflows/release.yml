@@ -6,6 +6,7 @@ on:
       - 'v*'
 
 permissions:
+  id-token: write
   contents: write
 
 jobs:
@@ -46,7 +47,7 @@ jobs:
           EOF
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - id: install-deps
         name: Install dependencies
         run: bun install --frozen-lockfile
