@@ -65,7 +65,7 @@ jobs:
         name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - id: build docs
+      - id: build-docs
         name: Run build docs
         run: bun run build-docs
 
