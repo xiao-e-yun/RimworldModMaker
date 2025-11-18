@@ -34,7 +34,7 @@ jobs:
 
       - id: setup-bun
         name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
 
@@ -50,7 +50,7 @@ jobs:
         name: Set npm version
         run: npm version $(git describe --tags --abbrev=0) --no-git-tag-version
 
-      - run: npm publish --provenance --access public
+      - run: bunx npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -62,7 +62,7 @@ jobs:
 
       - id: setup-bun
         name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
 
