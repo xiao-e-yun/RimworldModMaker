@@ -41,10 +41,7 @@ jobs:
 
       - name: Configure npm
         run: |
-          cat > .npmrc << EOF
-          registry=https://npm.pkg.github.com/
-          //npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
-          EOF
+          echo " //registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" >> ~/.npmrc
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -60,7 +57,7 @@ jobs:
         name: Set npm version
         run: npm version $(git describe --tags --abbrev=0) --no-git-tag-version
 
-      - run: bunx npm publish --provenance --access public
+      - run: npm publish --provenance --access public
 
   docs:
     runs-on: ubuntu-latest
