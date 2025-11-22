@@ -38,3 +38,14 @@ export function registerDef<T extends string>(ctx: ContextWithoutFunctions, def:
     ctx.defsTree[def.tag].push(def);
     return createDefId(def.tag, def.get("defName")?.text() as string) as DefId<T>;
 }
+
+export function getDefId(def?: DefId<any>): string | undefined
+export function getDefId(def?: DefId<any>[]): string[] | undefined
+export function getDefId(def?: DefId<any> | DefId<any>[]): string | string[] | undefined {
+  if (!def) return;
+  if (Array.isArray(def)) return def.map(d => d.id);
+  return def.id;
+}
+
+export const RUNTIME_ID = "RimWorldModMakerRuntime";
+export const runtimeClass = (className: string) => `${RUNTIME_ID}.${className}`;
