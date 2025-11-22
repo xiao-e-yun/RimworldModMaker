@@ -2,6 +2,7 @@ import { chain, kebabCase } from "lodash";
 import { bindContext, $console, Context, CONTEXT_BINDINGS } from "@/utils";
 import { x, xls } from "@/xml";
 import { existsSync, rmdirSync } from "fs";
+import path from "path";
 
 export * from "@/defs"
 export * from "@/components"
@@ -19,7 +20,8 @@ export function defineMod(
             outputPath: options.output || `./output/${options.id}`,
         },
         defsTree: {},
-        textureAssets: new Map<string, string>(),
+        assets: {},
+        requiredRuntime: false,
     }, CONTEXT_BINDINGS)
 
     if (existsSync(context.appSettings.outputPath)) {
@@ -31,7 +33,6 @@ export function defineMod(
             $console.warn(`Failed to clean output directory: ${e}`);
         }
     }
-
 
     $console.log(`Building mod: ${options.name} (${options.id})`);
     $console.log(`Writing About.xml...`);
@@ -57,6 +58,13 @@ export function defineMod(
     $console.log(`Writing definitions...`);
     const defs = Object.values(context.defsTree).flat();
     context.writeXmlFile(`Defs/Defs.xml`, x("Defs", defs));
+
+    if (!context.requiredRuntime || options.hotReload) {
+        $console.log(`Bundling runtime...`);
+        const dll = path.join(import.meta.dir, "RimWorldModMakerRuntime.dll")
+        context.copyFile(dll, `Assemblies/RimWorldModMakerRuntime.dll`);
+        context.writeRuntimeJson({ hotReload: options.hotReload });
+    }
 
     $console.log(`Mod build completed: ${context.appSettings.outputPath}`);
 
@@ -85,6 +93,11 @@ export function defineMod(
             .value();
         if (hasDuplicates) return
     }
+
+    /* Trigger hot reload */
+    if (options.hotReload)
+        fetch("http://localhost:8700/hot-reload", { method: "POST" })
+            .catch(() => $console.warn("Failed to trigger hot reload."));
 }
 
 export type ModOptions = {
@@ -110,4 +123,6 @@ export type ModOptions = {
     pretty?: boolean;
     /** Clean the output directory before building. */
     clean?: boolean;
+    /** Hot reload support. */
+    hotReload?: boolean;
 }
