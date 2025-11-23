@@ -1,59 +1,70 @@
-import { copyFileSync, existsSync, mkdirSync, writeFileSync } from "fs";
-import { $console, ContextWithoutFunctions, XmlNode, random } from "@/utils";
+import {copyFileSync, existsSync, mkdirSync, writeFileSync} from "fs";
+import {$console, ContextWithoutFunctions, XmlNode, generateUUID} from "@/utils";
 
-export const IO_CONTEXT_BINDINGS = { getPath, writeXmlFile, copyFile, bundleTextures } as const;
+export const IO_CONTEXT_BINDINGS = {getPath, writeXmlFile, writeRuntimeJson, copyFile, bundleAssets, bundleSounds, bundleTextures } as const;
 
 export function getPath(ctx: ContextWithoutFunctions, path: string) {
-    if (path.startsWith("/")) {
-        $console.error(`Path should not start with '/': ${path}`);
-        path = path.slice(1);
-    }
-    return ctx.appSettings.outputPath + "/" + path;
+  if (path.startsWith("/")) {
+    $console.error(`Path should not start with '/': ${path}`);
+    path = path.slice(1);
+  }
+  return ctx.appSettings.outputPath + "/" + path;
 }
 
 export function writeXmlFile(ctx: ContextWithoutFunctions, path: string, xml: XmlNode) {
-    const normalizedPath = getPath(ctx, path);
-    const xmlDeclaration = '<?xml version="1.0" encoding="utf-8"?>\n';
-    createDirectoryBasedFile(normalizedPath);
-    writeFileSync(normalizedPath, xmlDeclaration + xml.stringify(ctx.appSettings.pretty));
+  const normalizedPath = getPath(ctx, path);
+  const xmlDeclaration = '<?xml version="1.0" encoding="utf-8"?>\n';
+  createDirectoryBasedFile(normalizedPath);
+  writeFileSync(normalizedPath, xmlDeclaration + xml.stringify(ctx.appSettings.pretty));
+}
+
+export function writeRuntimeJson(ctx: ContextWithoutFunctions, json: any) {
+  const normalizedPath = getPath(ctx, "runtime.json");
+  writeFileSync(normalizedPath, JSON.stringify(json, null, ctx.appSettings.pretty ? 2 : 0));
 }
 
 export function copyFile(ctx: ContextWithoutFunctions, src: string, dest: string) {
-    const normalizedDest = getPath(ctx, dest);
+  const normalizedDest = getPath(ctx, dest);
 
-    if (!existsSync(src)) {
-        $console.error(`Source file does not exist: ${src}`);
-    } else {
-        createDirectoryBasedFile(normalizedDest);
-        copyFileSync(src, normalizedDest);
-    }
+  if (!existsSync(src)) {
+    $console.error(`Source file does not exist: ${src}`);
+  } else {
+    createDirectoryBasedFile(normalizedDest);
+    copyFileSync(src, normalizedDest);
+  }
 }
 
 function createDirectoryBasedFile(path: string) {
-    const cleanedPath = path.slice(0, path.lastIndexOf("/"));
-    if (existsSync(cleanedPath)) return;
-    mkdirSync(cleanedPath, { recursive: true });
+  const cleanedPath = path.slice(0, path.lastIndexOf("/"));
+  if (existsSync(cleanedPath)) return;
+  mkdirSync(cleanedPath, {recursive: true});
 }
 
-export function bundleTextures(ctx: ContextWithoutFunctions, sources: string | string[]) {
-    const sourcesKey = Array.isArray(sources) ? sources.join(",") : sources;
-    if (ctx.textureAssets.has(sourcesKey)) return ctx.textureAssets.get(sourcesKey)!;
+function bundleAssets(type: string, ctx: ContextWithoutFunctions, sources: string | string[]) {
+  if (!(type in ctx.assets)) ctx.assets[type] = new Map<string, string>();
+  const assets = ctx.assets[type];
 
-    const textureId = random();
-    const texurePath = `${ctx.appSettings.id}/${textureId}`;
-    ctx.textureAssets.set(sourcesKey, texurePath);
+  const sourcesKey = Array.isArray(sources) ? sources.join(",") : sources;
+  if (assets.has(sourcesKey)) return assets.get(sourcesKey)!;
 
-    if (!Array.isArray(sources)) {
-        const ext = sources.split(".").pop();
-        copyFile(ctx, sources, `Textures/${texurePath}.${ext}`);
-        return texurePath;
-    }
+  const textureId = generateUUID();
+  const texurePath = `${ctx.appSettings.id}/${textureId}`;
+  assets.set(sourcesKey, texurePath);
 
-    for (const idx in sources) {
-        const source = sources[idx];
-        const ext = source.split(".").pop();
-        copyFile(ctx, source, `Textures/${texurePath}/${idx}.${ext}`);
-    }
-
+  if (!Array.isArray(sources)) {
+    const ext = sources.split(".").pop();
+    copyFile(ctx, sources, `${type}/${texurePath}.${ext}`);
     return texurePath;
+  }
+
+  for (const idx in sources) {
+    const source = sources[idx];
+    const ext = source.split(".").pop();
+    copyFile(ctx, source, `${type}/${texurePath}/${idx}.${ext}`);
+  }
+
+  return texurePath;
 }
+
+function bundleTextures(ctx: ContextWithoutFunctions, sources: string | string[]) {return bundleAssets("Textures", ctx, sources)}
+function bundleSounds(ctx: ContextWithoutFunctions, sources: string | string[]) {return bundleAssets("Sounds", ctx, sources)}

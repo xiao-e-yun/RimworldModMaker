@@ -23,7 +23,8 @@ export interface ContextWithoutFunctions {
         outputPath: string;
     }
     defsTree: Record<string, XmlNode[]>;
-    textureAssets: Map<string, string>;
+    assets: Record<string, Map<string, string>>;
+    requiredRuntime: boolean
 }
 export type Context = ReturnType<typeof bindContext<ContextWithoutFunctions, typeof CONTEXT_BINDINGS>>
 
@@ -42,6 +43,6 @@ export function bindContext<T extends ContextWithoutFunctions, Fns extends Recor
 }
 
 // Utility functions
-export const random = randomUUID
+export const generateUUID = randomUUID;
 
 export const toVec = (arr: number[]) => `(${arr.join(", ")})`;
