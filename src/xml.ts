@@ -1,4 +1,4 @@
-import { cloneDeep, isString } from "lodash";
+import { cloneDeep, isEmpty, isString } from "lodash";
 
 export type XmlAttrs = Record<string, string | number | boolean>;
 export type XmlChild = XmlNode | string | boolean | number;
@@ -10,7 +10,10 @@ export class XmlNode {
     constructor(tag: string, attrs?: XmlAttrs, contents?: null | XmlChild | XmlChild[]) {
         this.tag = tag;
         this.attrs = attrs ?? {};
-        this.contents = contents === null ? null : (Array.isArray(contents) ? contents : [contents]).filter(node => !isString(node) || node !== "") as XmlChild[];
+        if (contents === undefined) this.contents = [];
+        else if (contents === null) this.contents = null;
+        else this.contents = (Array.isArray(contents) ? contents : [contents])
+          .filter(node => !isString(node) || !isEmpty(node)) as XmlChild[];
     }
 
     get(tag: string): XmlNode | null {
