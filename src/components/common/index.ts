@@ -8,5 +8,6 @@ export * from "./art"
 export const ExtendsComponent = (parentDefName: string) => new class implements Component {
     id = "ExtendsComponent"
     required: string[] = []
-    modify = (def: XmlNode) => def.attrs["ParentName"] = parentDefName
+    requiredRuntime: boolean = false
+    modify = (def: XmlNode) => def.attrs.ParentName = parentDefName
 }

@@ -1,111 +1,128 @@
-import { SimpleComponent } from "../";
-import { x } from "@/utils";
+import {SimpleComponent} from "../";
+import {toVec, x} from "@/utils";
 
-export const GraphicComponent = (bundledTextures: string, graphic: GraphicType, props?: GraphicProps) => new SimpleComponent("GraphicComponent", [
+export const GraphicComponent = (props: GraphicProps) => new SimpleComponent("GraphicComponent", {
+  props: [
     x("graphicData", [
-        x("texPath", bundledTextures),
-        x("graphicClass", graphic),
-        x("shaderType", props?.shader),
-        x("drawSize", props?.scale),
-        x("drawOffsetNorth", props?.offset?.north),
-        x("drawOffsetEast", props?.offset?.east),
-        x("drawOffsetSouth", props?.offset?.south),
-        x("drawOffsetWest", props?.offset?.west),
+      x("texPath", props.textures),
+      x("maskPath", props.masks),
+      x("graphicClass", props.graphic),
+      x("shaderType", props.shader),
+      x("drawSize", Array.isArray(props?.scale) ? toVec(props.scale) : props.scale),
+      x("drawOffsetNorth", props.offset?.north),
+      x("drawOffsetEast", props.offset?.east),
+      x("drawOffsetSouth", props.offset?.south),
+      x("drawOffsetWest", props.offset?.west),
+      x("onGroundRandomRotateAngle", props.dropRandomlyRotated),
+      x("drawRotated", props.drawRotated),
+      x("allowFlip", props.allowFlip),
     ])
-], [])
+  ], 
+  required: []
+})
 
 export interface GraphicProps {
-    shader?: ShaderType;
-    scale?: number;
-    offset?: {
-        north?: [number, number, number]
-        east?: [number, number, number]
-        south?: [number, number, number]
-        west?: [number, number, number]
-    }
+  textures: string,
+  masks?: string,
+  graphic: GraphicType,
+  props?: GraphicProps
+}
+
+export interface GraphicProps {
+  shader?: ShaderType;
+  scale?: number | [number, number];
+  offset?: {
+    north?: [number, number, number]
+    east?: [number, number, number]
+    south?: [number, number, number]
+    west?: [number, number, number]
+  }
+  dropRandomlyRotated?: number;
+  drawRotated?: boolean;
+  allowFlip?: boolean;
 }
 
 export enum GraphicType {
-    MoteRandomWithAgeSecs = "GraphicMote_RandomWithAgeSecs",
-    Appearances = "Graphic_Appearances",
-    Cluster = "Graphic_Cluster",
-    ClusterTight = "Graphic_ClusterTight",
-    Fleck = "Graphic_Fleck",
-    FleckPulse = "Graphic_FleckPulse",
-    FleckSplash = "Graphic_FleckSplash",
-    Flicker = "Graphic_Flicker",
-    Genepack = "Graphic_Genepack",
-    MealVariants = "Graphic_MealVariants",
-    Mote = "Graphic_Mote",
-    MoteRandom = "Graphic_MoteRandom",
-    MoteWithAgeSecs = "Graphic_MoteWithAgeSecs",
-    MoteWithParentRotation = "Graphic_MoteWithParentRotation",
-    Multi = "Graphic_Multi",
-    PawnBodySilhouette = "Graphic_PawnBodySilhouette",
-    Random = "Graphic_Random",
-    Single = "Graphic_Single",
-    StackCount = "Graphic_StackCount",
+  MoteRandomWithAgeSecs = "GraphicMote_RandomWithAgeSecs",
+  Appearances = "Graphic_Appearances",
+  Cluster = "Graphic_Cluster",
+  ClusterTight = "Graphic_ClusterTight",
+  Fleck = "Graphic_Fleck",
+  FleckPulse = "Graphic_FleckPulse",
+  FleckSplash = "Graphic_FleckSplash",
+  Flicker = "Graphic_Flicker",
+  Genepack = "Graphic_Genepack",
+  MealVariants = "Graphic_MealVariants",
+  Mote = "Graphic_Mote",
+  MoteRandom = "Graphic_MoteRandom",
+  MoteWithAgeSecs = "Graphic_MoteWithAgeSecs",
+  MoteWithParentRotation = "Graphic_MoteWithParentRotation",
+  Multi = "Graphic_Multi",
+  PawnBodySilhouette = "Graphic_PawnBodySilhouette",
+  Random = "Graphic_Random",
+  Single = "Graphic_Single",
+  StackCount = "Graphic_StackCount",
 }
 
 export enum ShaderType {
-    AdditiveChangeHue = "AdditiveChangeHue",
-    Cutout = "Cutout",
-    CutoutAnimated = "CutoutAnimated",
-    CutoutComplex = "CutoutComplex",
-    CutoutFlying = "CutoutFlying",
-    CutoutFlying01 = "CutoutFlying01",
-    CutoutPlant = "CutoutPlant",
-    CutoutSkin = "CutoutSkin",
-    CutoutWithOverlay = "CutoutWithOverlay",
-    EdgeDetect = "EdgeDetect",
-    GlowAnimated = "GlowAnimated",
-    Lightshaft = "Lightshaft",
-    Mote = "Mote",
-    MoteApocritonPulse = "MoteApocritonPulse",
-    MoteBeam = "MoteBeam",
-    MoteBouncing = "MoteBouncing",
-    MoteBouncingRotating = "MoteBouncingRotating",
-    MoteChargingPulse = "MoteChargingPulse",
-    MoteCircularSparks = "MoteCircularSparks",
-    MoteDistorted = "MoteDistorted",
-    MoteGlow = "MoteGlow",
-    MoteGlowCircularScrolling = "MoteGlowCircularScrolling",
-    MoteGlowDistortBackground = "MoteGlowDistortBackground",
-    MoteGlowDistorted = "MoteGlowDistorted",
-    MoteGlowParentRotation = "MoteGlowParentRotation",
-    MoteGlowPulse = "MoteGlowPulse",
-    MoteHeatDiffusion = "MoteHeatDiffusion",
-    MoteHellfireCannon_Aim = "MoteHellfireCannon_Aim",
-    MoteHellfireCannon_Charge = "MoteHellfireCannon_Charge",
-    MoteHellfireCannon_Target = "MoteHellfireCannon_Target",
-    MoteLargeDistortionWave = "MoteLargeDistortionWave",
-    MoteMechGestatorGlow = "MoteMechGestatorGlow",
-    MoteMultiplyAddCircular = "MoteMultiplyAddCircular",
-    MoteMultiplyAddCircularGrayscale = "MoteMultiplyAddCircularGrayscale",
-    MoteMultiplyAddScroll = "MoteMultiplyAddScroll",
-    MoteMultiplyCircularGrayscale = "MoteMultiplyCircularGrayscale",
-    MotePawnBodyColor = "MotePawnBodyColor",
-    MotePawnBodyGlow = "MotePawnBodyGlow",
-    MotePollutionPump = "MotePollutionPump",
-    MotePsychicConditionCauser = "MotePsychicConditionCauser",
-    MotePsychicSkipFlash = "MotePsychicSkipFlash",
-    MotePsychicSkipInner = "MotePsychicSkipInner",
-    MotePsychicSkipRing = "MotePsychicSkipRing",
-    MotePsychicWarmupNeuroquake = "MotePsychicWarmupNeuroquake",
-    MoteSoftScannerGlow = "MoteSoftScannerGlow",
-    MoteSubcoreEncoder = "MoteSubcoreEncoder",
-    MoteWater = "MoteWater",
-    PawnSilhouetteStencil = "PawnSilhouetteStencil",
-    PawnSilhouetteStencilColorAnimated = "PawnSilhouetteStencilColorAnimated",
-    RitualGlow = "RitualGlow",
-    RitualGlowSingleRay = "RitualGlowSingleRay",
-    RitualOutline = "RitualOutline",
-    RitualSmoke = "RitualSmoke",
-    RitualSmokeNoMask = "RitualSmokeNoMask",
-    Transparent = "Transparent",
-    TransparentAnimated = "TransparentAnimated",
-    TransparentBelowSnow = "TransparentBelowSnow",
-    TransparentPlant = "TransparentPlant",
-    TransparentPostLight = "TransparentPostLight",
-    TransparentShaking = "TransparentShaking",
+  AdditiveChangeHue = "AdditiveChangeHue",
+  Cutout = "Cutout",
+  CutoutAnimated = "CutoutAnimated",
+  CutoutComplex = "CutoutComplex",
+  CutoutFlying = "CutoutFlying",
+  CutoutFlying01 = "CutoutFlying01",
+  CutoutPlant = "CutoutPlant",
+  CutoutSkin = "CutoutSkin",
+  CutoutWithOverlay = "CutoutWithOverlay",
+  EdgeDetect = "EdgeDetect",
+  GlowAnimated = "GlowAnimated",
+  Lightshaft = "Lightshaft",
+  Mote = "Mote",
+  MoteApocritonPulse = "MoteApocritonPulse",
+  MoteBeam = "MoteBeam",
+  MoteBouncing = "MoteBouncing",
+  MoteBouncingRotating = "MoteBouncingRotating",
+  MoteChargingPulse = "MoteChargingPulse",
+  MoteCircularSparks = "MoteCircularSparks",
+  MoteDistorted = "MoteDistorted",
+  MoteGlow = "MoteGlow",
+  MoteGlowCircularScrolling = "MoteGlowCircularScrolling",
+  MoteGlowDistortBackground = "MoteGlowDistortBackground",
+  MoteGlowDistorted = "MoteGlowDistorted",
+  MoteGlowParentRotation = "MoteGlowParentRotation",
+  MoteGlowPulse = "MoteGlowPulse",
+  MoteHeatDiffusion = "MoteHeatDiffusion",
+  MoteHellfireCannon_Aim = "MoteHellfireCannon_Aim",
+  MoteHellfireCannon_Charge = "MoteHellfireCannon_Charge",
+  MoteHellfireCannon_Target = "MoteHellfireCannon_Target",
+  MoteLargeDistortionWave = "MoteLargeDistortionWave",
+  MoteMechGestatorGlow = "MoteMechGestatorGlow",
+  MoteMultiplyAddCircular = "MoteMultiplyAddCircular",
+  MoteMultiplyAddCircularGrayscale = "MoteMultiplyAddCircularGrayscale",
+  MoteMultiplyAddScroll = "MoteMultiplyAddScroll",
+  MoteMultiplyCircularGrayscale = "MoteMultiplyCircularGrayscale",
+  MotePawnBodyColor = "MotePawnBodyColor",
+  MotePawnBodyGlow = "MotePawnBodyGlow",
+  MotePollutionPump = "MotePollutionPump",
+  MotePsychicConditionCauser = "MotePsychicConditionCauser",
+  MotePsychicSkipFlash = "MotePsychicSkipFlash",
+  MotePsychicSkipInner = "MotePsychicSkipInner",
+  MotePsychicSkipRing = "MotePsychicSkipRing",
+  MotePsychicWarmupNeuroquake = "MotePsychicWarmupNeuroquake",
+  MoteSoftScannerGlow = "MoteSoftScannerGlow",
+  MoteSubcoreEncoder = "MoteSubcoreEncoder",
+  MoteWater = "MoteWater",
+  PawnSilhouetteStencil = "PawnSilhouetteStencil",
+  PawnSilhouetteStencilColorAnimated = "PawnSilhouetteStencilColorAnimated",
+  RitualGlow = "RitualGlow",
+  RitualGlowSingleRay = "RitualGlowSingleRay",
+  RitualOutline = "RitualOutline",
+  RitualSmoke = "RitualSmoke",
+  RitualSmokeNoMask = "RitualSmokeNoMask",
+  Transparent = "Transparent",
+  TransparentAnimated = "TransparentAnimated",
+  TransparentBelowSnow = "TransparentBelowSnow",
+  TransparentPlant = "TransparentPlant",
+  TransparentPostLight = "TransparentPostLight",
+  TransparentShaking = "TransparentShaking",
 }

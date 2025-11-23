@@ -10,11 +10,17 @@ export class SimpleComponent implements Component {
     id: string;
     props: XmlNode[]
     required: string[];
+    requiredRuntime = false;
 
-    constructor(id: string, props: XmlNode[], required: string[]) {
+    constructor(id: string, options: {
+        props: XmlNode[];
+        required?: string[];
+        requiredRuntime?: boolean;
+    }) {
         this.id = id;
-        this.props = props;
-        this.required = required;
+        this.props = options?.props;
+        this.required = options?.required ?? [];
+        this.requiredRuntime = !!options?.requiredRuntime
     };
 
     modify(def: XmlNode) {
@@ -27,11 +33,13 @@ export class CompComponent implements Component {
     props: XmlNode[]
     required: string[];
     isExtends: boolean;
+    requiredRuntime = false;
 
     constructor(compClass: string, options?: {
         props?: XmlNode[];
         isExtends?: boolean;
         required?: string[];
+        requiredRuntime?: boolean;
     }) {
         this.id = compClass
         this.props = options?.props ?? [];
@@ -41,7 +49,6 @@ export class CompComponent implements Component {
 
     modify(def: XmlNode) {
         const comps = def.getOrCreate("comps").contents!;
-
         if (this.isExtends) comps.push(x("li", this.props, { Class: this.id }))
         else comps.push(x("li", [x("compClass", this.id), ...this.props]))
     }
@@ -50,6 +57,7 @@ export class CompComponent implements Component {
 export interface Component {
     id: string;
     required: string[];
+    requiredRuntime: boolean;
     modify: (def: XmlNode) => void;
 }
 

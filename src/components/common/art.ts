@@ -1,3 +1,4 @@
+import {getDefId, RulePackDefId} from "@/defs";
 import { CompComponent } from "..";
 import { x } from "@/utils";
 
@@ -6,14 +7,18 @@ import { x } from "@/utils";
  * @requires QualityComponent
  */
 export const ArtComponent = (
-    nameMaker: string,
-    descriptionMaker: string,
+    nameMaker: RulePackDefId,
+    descriptionMaker: RulePackDefId,
     minQualityForArtistic: ArtisticQuality,
+    mustBeFullGrave: boolean = false,
+    canBeEnjoyedAsArt: boolean = true,
 ) => new CompComponent("CompProperties_Art", {
     props: [
-        x("nameMaker", nameMaker),
-        x("descriptionMaker", descriptionMaker),
+        x("nameMaker", getDefId(nameMaker)),
+        x("descriptionMaker", getDefId(descriptionMaker)),
         x("minQualityForArtistic", minQualityForArtistic),
+        x("mustBeFullGrave", mustBeFullGrave),
+        x("canBeEnjoyedAsArt", canBeEnjoyedAsArt),
     ],
     required: ["CompQuality"],
     isExtends: true,
