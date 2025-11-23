@@ -17,6 +17,7 @@ const defaultBuildConfig: BuildConfig = {
   sourcemap: "linked",
 }
 
+$.nothrow();
 if (command === "dev") {
   console.clear();
   console.log(`[${new Date().toLocaleTimeString()}] starting hot-reload development build...`);
@@ -35,10 +36,10 @@ if (command === "dev") {
     console.log(`[${new Date().toLocaleTimeString()}] source rebuilt.`);
   }
 
-  const rebuildRuntime = async (_eventType?: WatchEventType,path?: string | null) => {
+  const rebuildRuntime = async (_eventType?: WatchEventType, path?: string | null) => {
     if (path?.startsWith("obj/") || path?.startsWith("obj\\")) return;
     console.log(`[${new Date().toLocaleTimeString()}] rebuilding runtime...`);
-    await $`dotnet build ./runtime`
+    await $`dotnet build ./runtime`;
     console.log(`[${new Date().toLocaleTimeString()}] runtime rebuilt.`);
   }
 
@@ -49,7 +50,7 @@ if (command === "dev") {
 } else {
   await Promise.all([
     Bun.build({
-      ...defaultBuildConfig,  
+      ...defaultBuildConfig,
       format: 'esm',
       naming: "[dir]/[name].js",
     }),

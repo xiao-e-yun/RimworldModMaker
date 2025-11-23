@@ -1,6 +1,5 @@
 import { $console, x, XmlChild, XmlNode } from "@/utils";
 import { difference, map, uniq } from "lodash-es";
-import { exit } from "process";
 
 export * from "./common/"
 export * from "./item/"
@@ -83,7 +82,7 @@ export function registerComponents(def: XmlNode, components: Component[]) {
     if (required.length > 0 && !requiredComponents(required, components)) {
         $console.error(`Component registration failed due to missing required components.`);
         $console.error(`  Definition: ${def.get("defName")?.text()}`);
-        exit(1);
+        throw new Error("Component registration failed.");
     }
 }
 
