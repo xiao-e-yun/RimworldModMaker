@@ -1,11 +1,12 @@
-import { EffecterDefId, ResearchProjectDefId, SoundDefId, StatDefId, StuffCategoryDefId, ThingCategoryDefId, ThingDefId } from "@/defs";
+import { EffecterDefId, getDefId, ResearchProjectDefId, SoundDefId, StatDefId, StuffCategoryDefId, ThingCategoryDefId, ThingDefId, WorkTypeDefId } from "@/defs";
 import { Component } from "..";
 import { x, xls, XmlNode } from "../../xml";
 
 export const RecipeComponent = (recipeMaker: Recipe, costs: RecipeCosts) => new class implements Component {
     id = "RecipeComponent";
     required: string[] = [];
-    
+    requiredRuntime = false;
+
     recipeMaker: Recipe;
     costs: RecipeCosts;
     constructor(recipeMaker: Recipe, costs: RecipeCosts) {
@@ -15,31 +16,38 @@ export const RecipeComponent = (recipeMaker: Recipe, costs: RecipeCosts) => new 
 
     modify(def: XmlNode) {
 
-        const skillRequirements = this.recipeMaker.skillRequirements && Object.entries(this.recipeMaker.skillRequirements).map(([k, v]) => x(k, v.toString()));
+        const skillRequirements = this.recipeMaker.skillRequirements && this.recipeMaker.skillRequirements.map(([k, v]) => x(getDefId(k)!, v))
 
         const maker = x("recipeMaker", [
-            x("researchPrerequisite", this.recipeMaker.researchPrerequisite?.id),
-            x("workSpeedStat", this.recipeMaker.workSpeedStat?.id),
-            x("workSkill", xls(skillRequirements)),
-            x("effectWorking", this.recipeMaker.effectWorking?.id),
-            x("soundWorking", this.recipeMaker.soundWorking?.id),
-            x("recipeUsers", xls(this.recipeMaker.recipeUsers)),
+            x("researchPrerequisite", getDefId(this.recipeMaker.researchPrerequisite)),
+            x("workSpeedStat", getDefId(this.recipeMaker.workSpeedStat)),
+            x("skillRequirements", skillRequirements),
+            x("workSkill", getDefId(this.recipeMaker.workSkill)),
+            x("effectWorking", getDefId(this.recipeMaker.effectWorking)),
+            x("soundWorking", getDefId(this.recipeMaker.soundWorking)),
+            x("recipeUsers", xls(getDefId(this.recipeMaker.recipeUsers))),
         ])
+        def.push(maker);
 
-
-        const list = x("costList", this.costs.list && Object.entries(this.costs.list).map(([k, v]) => x(k, v.toString())));
-        def.push(maker, list);
+        const costList = this.costs.list && this.costs.list.map(([k, v]) => x(getDefId(k)!, v));
+        def.push(x("costList", costList));
 
         if (this.costs.stuff) {
+            const { accepts, count } = this.costs.stuff;
             def.push(
-                x("costStuffCount", this.costs.stuff.count.toString()),
-                x("stuffCategories", xls(this.costs.stuff.accepts?.map(cat => cat.id)))
+                x("costStuffCount", count),
+                x("stuffCategories", xls(getDefId(accepts)))
             )
-            if (this.costs.stuff.disallows || this.costs.stuff.categories)
-                def.push(x("defaultIngredientFilter", [
-                    x("categories", xls(this.costs.stuff.categories?.map(cat => cat.id))),
-                    x("disallowedThingDefs", xls(this.costs.stuff.disallows?.map(def => def.id)))
-                ]))
+        }
+
+        if (this.costs.ingredient) {
+            def.push(x("ingredients", xls(this.costs.ingredient.map(ing => x("li", [
+                x("filter", [
+                    x("customSummary", ing.name),
+                    x("categories", xls(getDefId(ing.accepts))),
+                ]),
+                x("count", ing.count.toString()),
+            ])))))
         }
 
         def.getOrCreate("statBases").push(x("WorkToMake", this.recipeMaker.workToMake.toString()));
@@ -54,13 +62,15 @@ export interface Recipe {
     /** The work speed stat for the recipe. */
     workSpeedStat?: StatDefId;
     /** The skill requirements for the recipe. */
-    skillRequirements?: { [skill: string]: number };
+    skillRequirements?: [WorkTypeDefId, number][];
     /** The effect that occurs while working on the recipe. */
     effectWorking?: EffecterDefId;
     /** The sound that plays while working on the recipe. */
     soundWorking?: SoundDefId;
     /** The users of the recipe. */
-    recipeUsers?: RecipeUser[];
+    recipeUsers?: ThingDefId[];
+    /** Skill required for this recipe */
+    workSkill?: WorkTypeDefId;
 }
 
 export enum RecipeUser {
@@ -73,13 +83,15 @@ export enum RecipeUser {
 }
 
 export interface RecipeCosts {
-    list?: { [resourceDefName: string]: number };
+    list?: [ThingDefId, number][];
     stuff?: {
         accepts: StuffCategoryDefId[];
         count: number;
-
-        disallows?: ThingDefId[];
-        categories?: ThingCategoryDefId[];
-    }
+    };
+    ingredient?: {
+        name: string;
+        accepts: ThingCategoryDefId[];
+        count: number;
+    }[]
 
 }
