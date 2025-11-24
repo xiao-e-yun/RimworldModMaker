@@ -1,13 +1,16 @@
-import { BaseDefProps, includeBaseDef, registerDef, ResearchProjectDefId, ResearchProjectTagDefId, ResearchTabDefId, ThingDefId } from ".";
+import { BaseDefProps, DefNode, getDefId, registerDef, ResearchProjectDefId, ResearchProjectTagDefId, ResearchTabDefId, ThingDefId } from ".";
 import { TechLevel } from "../common";
-import { ContextWithoutFunctions, x, xls } from "@/utils"
+import { ContextWithoutFunctions, x, xls, xobj } from "@/utils"
 
 export const defineResearchTab = (context: ContextWithoutFunctions, props: ResearchTabProps): ResearchTabDefId => {
-    return registerDef(context, x("ResearchTabDef", [
-        ...includeBaseDef(props),
-        x("generalTitle", props.label), // usually same as label
-        x("generalDescription", props.description),
-    ]));
+    return registerDef(context, new DefNode("ResearchTabDef", {
+        name: props.name,
+        label: props.label,
+        contents: xobj({
+            generalTitle: props.label, // usually same as label
+            generalDescription: props.description,
+        })
+    }));
 }
 
 export interface ResearchTabProps extends BaseDefProps {
@@ -15,36 +18,41 @@ export interface ResearchTabProps extends BaseDefProps {
 }
 
 export const defineResearchProject = (context: ContextWithoutFunctions, props: ResearchProjectProps): ResearchProjectDefId => {
-    return registerDef(context, x("ResearchProjectDef", [
-        ...includeBaseDef(props),
 
-        x("tab", props.tab?.id),
+    return registerDef(context, new DefNode("ResearchProjectDef", {
+        name: props.name,
+        label: props.label,
+        contents: xobj({
+            description: props.description,
+            tab: getDefId(props.tab),
 
-        x("baseCost", props.baseCost),
+            baseCost: props.baseCost,
 
-        x("tags", xls(props.tags?.map(t => t.id))),
+            tags: xls(props.tags?.map(t => t.id)),
 
-        x("researchViewX", props.position[0]),
-        x("researchViewY", props.position[1] * 0.7),
+            researchViewX: props.position[0],
+            researchViewY: props.position[1] * 0.7,
 
-        x("prerequisites", xls(props.prerequisites?.map(pr => pr.id))),
-        x("hiddenPreqrequisites", xls(props.hiddenPreqrequisites?.map(pr => pr.id))),
+            prerequisites: xls(getDefId(props.prerequisites)),
+            hiddenPreqrequisites: xls(getDefId(props.hiddenPreqrequisites)),
 
-        x("techLevel", props.required?.techLevel ?? TechLevel.Neolithic),
-        x("requiredAnalyzed", xls(props.required?.analyzed)),
-        x("requiredResearchBuilding", props.required?.researchBuilding?.id),
-        x("requiredResearchFacilities", xls(props.required?.researchFacilities?.map(rf => rf.id))),
-        x("requiresMechanitor", props.required?.mechanitor),
+            techLevel: props.required?.techLevel ?? TechLevel.Neolithic,
 
-        x("techprintMarketValue", props.techprint?.marketValue),
-        x("techprintCommonality", props.techprint?.commonality),
-        x("techprintCount", props.techprint?.count),
+            requiredAnalyzed: xls(props.required?.analyzed),
+            requiredResearchBuilding: getDefId(props.required?.researchBuilding),
+            requiredResearchFacilities: xls(getDefId(props.required?.researchFacilities)),
+            requiresMechanitor: props.required?.mechanitor,
 
-        x("knowledgeCategory", props.knowledge?.category),
-        x("knowledgeCost", props.knowledge?.cost),
+            techprintMarketValue: props.techprint?.marketValue,
+            techprintCommonality: props.techprint?.commonality,
+            techprintCount: props.techprint?.count,
 
-        x("generalRules", props.generalRules && x("rulesStrings", xls(props.generalRules))),
-    ]));
+            knowledgeCategory: props.knowledge?.category,
+            knowledgeCost: props.knowledge?.cost,
+
+            generalRules: props.generalRules && x("rulesStrings", xls(props.generalRules)),
+        }),
+    }))
 }
 
 /**
@@ -52,6 +60,7 @@ export const defineResearchProject = (context: ContextWithoutFunctions, props: R
  */
 export interface ResearchProjectProps extends BaseDefProps {
 
+    description: string;
     /**
      * @example ["ClassicStart", "TribalStart"]
      */

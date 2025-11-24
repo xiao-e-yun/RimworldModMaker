@@ -1,6 +1,6 @@
-import {getDefId, RulePackDefId} from "@/defs";
+import { getDefId, RulePackDefId } from "@/defs";
 import { CompComponent } from "..";
-import { x } from "@/utils";
+import { xobj } from "@/utils";
 
 /** 
  * Art Component
@@ -13,13 +13,13 @@ export const ArtComponent = (
     mustBeFullGrave: boolean = false,
     canBeEnjoyedAsArt: boolean = true,
 ) => new CompComponent("CompProperties_Art", {
-    props: [
-        x("nameMaker", getDefId(nameMaker)),
-        x("descriptionMaker", getDefId(descriptionMaker)),
-        x("minQualityForArtistic", minQualityForArtistic),
-        x("mustBeFullGrave", mustBeFullGrave),
-        x("canBeEnjoyedAsArt", canBeEnjoyedAsArt),
-    ],
+    props: xobj({
+        nameMaker: getDefId(nameMaker),
+        descriptionMaker: getDefId(descriptionMaker),
+        minQualityForArtistic: minQualityForArtistic,
+        mustBeFullGrave: mustBeFullGrave,
+        canBeEnjoyedAsArt: canBeEnjoyedAsArt,
+    }),
     required: ["CompQuality"],
     isExtends: true,
 });

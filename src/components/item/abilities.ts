@@ -7,22 +7,23 @@
 //     <ammoCountPerCharge>20</ammoCountPerCharge>
 //     <baseReloadTicks>60</baseReloadTicks>
 // </li>
-import {AbilityDefId, getDefId, runtimeClass} from "@/defs";
+import { AbilityDefId, getDefId } from "@/defs";
 import { CompComponent } from "..";
-import { x, xls } from "../../xml";
+import { xls, xobj } from "../../xml";
+import { runtimeClass } from "@/index";
 
 
 export const WeaponAbilitiesComponent = (abilities: AbilityDefId[]) => new CompComponent(runtimeClass("CompProperties_WeaponAbilities"), {
-  props: [
-    x("AbilitieDefs", xls(getDefId(abilities)))
-  ],
+  props: xobj({
+    AbilityDefs: xls(getDefId(abilities))
+  }),
   isExtends: true,
   required: ["GenericWeapon"],
   requiredRuntime: true,
 })
 
 /**
- * 
+ *
  * @requires Anomaly
  */
 // export const EquippableAbilityComponent = (props: EquippableAbilityProps) => props.reload ? new CompComponent("CompProperties_EquippableAbilityReloadable", {
@@ -42,7 +43,7 @@ export const WeaponAbilitiesComponent = (abilities: AbilityDefId[]) => new CompC
 //         x("abilityDef", props.abilityDef),
 //     ]
 // })
-// 
+//
 // export interface EquippableAbilityProps {
 //     abilityDef: string;
 //     reload?: {

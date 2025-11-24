@@ -1,5 +1,6 @@
-import { $console, x, XmlChild, XmlNode } from "@/utils";
-import { difference, map, uniq } from "lodash-es";
+import { DefNode } from "@/defs";
+import { $console, x, XmlNode } from "@/utils";
+import { difference, isUndefined, map, omitBy, uniq } from "lodash-es";
 
 export * from "./common/"
 export * from "./item/"
@@ -10,20 +11,25 @@ export class SimpleComponent implements Component {
     props: XmlNode[]
     required: string[];
     requiredRuntime = false;
+    stats: Record<string, number | undefined>;
 
     constructor(id: string, options: {
         props: XmlNode[];
         required?: string[];
         requiredRuntime?: boolean;
+        stats?: Record<string, number | undefined>;
     }) {
         this.id = id;
         this.props = options?.props;
+        this.stats = options?.stats ?? {};
         this.required = options?.required ?? [];
         this.requiredRuntime = !!options?.requiredRuntime
     };
 
-    modify(def: XmlNode) {
+    modify(def: DefNode) {
         def.mergeChildren(...this.props);
+        omitBy(this.stats, isUndefined);
+        def.required.runtime ||= this.requiredRuntime;
     }
 }
 
@@ -33,23 +39,29 @@ export class CompComponent implements Component {
     required: string[];
     isExtends: boolean;
     requiredRuntime = false;
+    stats: Record<string, number | undefined>;
 
     constructor(compClass: string, options?: {
         props?: XmlNode[];
         isExtends?: boolean;
         required?: string[];
         requiredRuntime?: boolean;
+        stats?: Record<string, number | undefined>;
     }) {
         this.id = compClass
+        this.stats = options?.stats ?? {};
         this.props = options?.props ?? [];
         this.isExtends = !!options?.isExtends
         this.required = options?.required ?? [];
+        this.requiredRuntime = !!options?.requiredRuntime
     };
 
-    modify(def: XmlNode) {
+    modify(def: DefNode) {
         const comps = def.getOrCreate("comps").contents!;
         if (this.isExtends) comps.push(x("li", this.props, { Class: this.id }))
         else comps.push(x("li", [x("compClass", this.id), ...this.props]))
+        this.stats = omitBy(this.stats, isUndefined);
+        def.required.runtime ||= this.requiredRuntime;
     }
 }
 
@@ -57,10 +69,10 @@ export interface Component {
     id: string;
     required: string[];
     requiredRuntime: boolean;
-    modify: (def: XmlNode) => void;
+    modify: (def: DefNode) => void;
 }
 
-export function registerComponents(def: XmlNode, components: Component[]) {
+export function registerComponents(def: DefNode, components: Component[]) {
     const loadedComps = new Set<string>();
     const required: string[] = [];
 
@@ -100,5 +112,3 @@ export function requiredComponents(requiredList: string[], components: Component
     }
     return true
 }
-
-export const xStateBase = (props: Record<string, XmlChild | undefined>) => x("statBases", map(props, (value, key) => x(key, value)));

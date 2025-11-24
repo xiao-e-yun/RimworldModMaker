@@ -1,6 +1,6 @@
-import {x, xls} from "@/xml";
-import {SimpleComponent, xStateBase} from "..";
-import {BodyPartGroupDefId, DamageDefId, SoundDefId, ThingDefId, getDefId, ToolCapacityDefId, VanillaThingDef} from "@/defs";
+import { x, xls, xobj } from "@/xml";
+import { SimpleComponent } from "..";
+import { BodyPartGroupDefId, DamageDefId, SoundDefId, ThingDefId, getDefId, ToolCapacityDefId, VanillaThingDef } from "@/defs";
 
 // Attack
 export const MeleeAttackComponent = (props: MeleeAttack[]) => new SimpleComponent("MeleeAttack", {
@@ -45,28 +45,29 @@ export interface MeleeAttack {
 }
 
 // Ranged Attack
-export const RangedAttackComponent = (props: RangedAttack) => new SimpleComponent("RangedAttack", {
+export const RangedAttackComponent = (props: RangedAttack[], options?: GenericRangedAttack) => new SimpleComponent("RangedAttack", {
   props: [
-    x("verbs", [x("li", [
-      x("verbClass", props.verbClass),
-      x("hasStandardCommand", props.hasStandardCommand ?? true),
-      x("defaultProjectile", getDefId(props.defaultProjectile ?? VanillaThingDef.Bullet_AssaultRifle)),
-      x("warmupTime", props.warmupTime),
-      x("range", props.range),
-      x("burstShotCount", props.burstShotCount),
-      x("ticksBetweenBurstShots", props.rpm && 3600 / props.rpm),
-      x("soundCast", getDefId(props.soundCast)),
-      x("soundCastTail", getDefId(props.soundCastTail)),
-      x("muzzleFlashScale", props.muzzleFlashScale),
-    ])]),
-    xStateBase({
-      AccuracyTouch: props.accuracy?.touch,
-      AccuracyShort: props.accuracy?.short,
-      AccuracyMedium: props.accuracy?.medium,
-      AccuracyLong: props.accuracy?.long,
-      RangedWeapon_Cooldown: props.cooldown,
-    })
-  ], required: []
+    x("verbs", props.map(props => x("li", xobj({
+      verbClass: props.verbClass,
+      hasStandardCommand: props.hasStandardCommand ?? true,
+      defaultProjectile: getDefId(props.defaultProjectile ?? VanillaThingDef.Bullet_AssaultRifle),
+      warmupTime: props.warmupTime,
+      range: props.range,
+      burstShotCount: props.burstShotCount,
+      ticksBetweenBurstShots: props.rpm && 3600 / props.rpm,
+      soundCast: getDefId(props.soundCast),
+      soundCastTail: getDefId(props.soundCastTail),
+      muzzleFlashScale: props.muzzleFlashScale,
+    }))))
+  ],
+  stats: {
+    AccuracyTouch: options?.accuracy?.touch,
+    AccuracyShort: options?.accuracy?.short,
+    AccuracyMedium: options?.accuracy?.medium,
+    AccuracyLong: options?.accuracy?.long,
+    RangedWeapon_Cooldown: options?.cooldown,
+  },
+required: [],
 });
 
 export interface RangedAttack {
@@ -74,7 +75,6 @@ export interface RangedAttack {
   hasStandardCommand?: boolean;
   defaultProjectile?: ThingDefId;
   warmupTime?: number;
-  cooldown?: number;
   range?: number;
   burstShotCount?: number;
   /**
@@ -84,6 +84,10 @@ export interface RangedAttack {
   soundCast?: SoundDefId;
   soundCastTail?: SoundDefId;
   muzzleFlashScale?: number;
+}
+
+export interface GenericRangedAttack {
+  cooldown?: number;
   accuracy?: {
     touch?: number;
     short?: number;

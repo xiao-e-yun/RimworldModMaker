@@ -1,88 +1,91 @@
-import { BaseDefProps, DamageArmorCategoryDefId, includeBaseDef, registerDef } from ".";
-import { ContextWithoutFunctions, toVec, x } from "@/utils";
+import { BaseDefProps, DamageArmorCategoryDefId, DefNode, registerDef } from ".";
+import { ContextWithoutFunctions, toVec, x, xobj } from "@/utils";
 
 export const defineDamage = (context: ContextWithoutFunctions, props: DamageProps): DamageArmorCategoryDefId => {
     const explosion = props.behavior?.explosion && typeof props.behavior.explosion === 'object' ? props.behavior.explosion : null;
 
-    const nodes = [
-        ...includeBaseDef(props),
-        x("workerClass", props.workerClass),
-    ];
+    const nodes = xobj({
+        workerClass: props.workerClass,
+    });
 
     if (props.messages) {
         const messages = props.messages;
-        nodes.push(
-            x("description", messages.description),
-            x("deathMessage", messages.death),
-            x("combatLogRules", messages.combat),
-        );
+        nodes.push(...xobj({
+            description: messages.description,
+            deathMessage: messages.death,
+            combatLogRules: messages.combat,
+        }));
     }
 
     if (props.health) {
         const health = props.health;
-        nodes.push(
-            x("hediff", health.hediff),
-            x("hediffSolid", health.hediffSolid),
-            x("harmAllLayersUntilOutside", health.harmAllLayersUntilOutside),
-        );
+        nodes.push(...xobj({
+            hediff: health.hediff,
+            hediffSolid: health.hediffSolid,
+            harmAllLayersUntilOutside: health.harmAllLayersUntilOutside,
+        }));
     }
 
     if (props.effects) {
         const effects = props.effects;
         nodes.push(x("impactSoundType", effects.impactSoundType));
-        if (props.behavior.explosion && effects.explosion) nodes.push(
-            x("soundExplosion", effects.explosion.sound),
-            x("explosionColorCenter", toVec(effects.explosion.colorCenter)),
-            x("explosionColorEdge", toVec(effects.explosion.colorEdge)),
-            x("explosionCellFleck", effects.explosion.cellFleck),
-        );
+        if (props.behavior.explosion && effects.explosion) nodes.push(...xobj({
+            soundExplosion: effects.explosion.sound,
+            explosionColorCenter: toVec(effects.explosion.colorCenter),
+            explosionColorEdge: toVec(effects.explosion.colorEdge),
+            explosionCellFleck: effects.explosion.cellFleck
+        }));
     }
 
     if (props.armor) {
         const armor = props.armor;
-        nodes.push(
-            x("armorCategory", armor.category),
-            x("defaultArmorPenetration", armor.defaultPenetration)
-        );
+        nodes.push(...xobj({
+            armorCategory: armor.category,
+            defaultArmorPenetration: armor.defaultPenetration
+        }));
     }
 
     if (props.damage) {
         const damage = props.damage;
-        nodes.push(
-            x("defaultDamage", damage.default),
-            x("defaultStoppingPower", damage.defaultStopping),
-            x("overkillPctToDestroyPart", damage.overkillPctToDestroyPart),
-            x("minDamageToFragment", damage.minToFragment),
-        );
+        nodes.push(...xobj({
+            defaultDamage: damage.default,
+            defaultStoppingPower: damage.defaultStopping,
+            overkillPctToDestroyPart: damage.overkillPctToDestroyPart,
+            minDamageToFragment: damage.minToFragment,
+        }));
     }
 
     if (props.environmentFactors) {
         const env = props.environmentFactors;
-        nodes.push(
-            x("buildingDamageFactorImpassable", env.buildingImpassable),
-            x("buildingDamageFactorPassable", env.buildingPassable),
-            x("plantDamageFactor", env.plant),
-            x("corpseDamageFactor", env.corpse),
-        );
+        nodes.push(...xobj({
+            buildingDamageFactorImpassable: env.buildingImpassable,
+            buildingDamageFactorPassable: env.buildingPassable,
+            plantDamageFactor: env.plant,
+            corpseDamageFactor: env.corpse,
+        }));
     }
 
     if (props.behavior) {
         const behavior = props.behavior;
-        nodes.push(
-            x("isRanged", behavior.ranged),
-            x("makesAnimalsFlee", behavior.animalsFlee),
-            x("hasForcefulImpact", behavior.forcefulImpact),
-            x("externalViolence", behavior.externalViolence),
-        );
-        if (explosion) nodes.push(
-            x("isExplosive", true),
-            x("explosionAffectOutsidePartsOnly", explosion.affectOutsidePartsOnly),
-            x("explosionPropagationSpeed", explosion.propagationSpeed),
-            x("explosionHeatEnergyPerCell", explosion.heatEnergyPerCell),
-        );
+        nodes.push(...xobj({
+            isRanged: behavior.ranged,
+            makesAnimalsFlee: behavior.animalsFlee,
+            hasForcefulImpact: behavior.forcefulImpact,
+            externalViolence: behavior.externalViolence,
+        }));
+        if (explosion) nodes.push(...xobj({
+            isExplosive: true,
+            explosionAffectOutsidePartsOnly: explosion.affectOutsidePartsOnly,
+            explosionPropagationSpeed: explosion.propagationSpeed,
+            explosionHeatEnergyPerCell: explosion.heatEnergyPerCell,
+        }));
     }
 
-    return registerDef(context, x("DamageDef", nodes));
+    return registerDef(context, new DefNode("DamageDef", {
+        name: props.name,
+        label: props.label,
+        contents: nodes,
+    }));
 }
 
 /**
@@ -317,11 +320,14 @@ export interface DamageProps extends BaseDefProps {
 }
 
 export const defineDamageArmorCategory = (context: ContextWithoutFunctions, props: DamageArmorCategoryProps): DamageArmorCategoryDefId => {
-    return registerDef(context, x("DamageArmorCategoryDef", [
-        x("defName", props.name),
-        x("multStat", props.multStat),
-        x("armorRatingStat", props.armorRatingStat),
-    ]));
+    return registerDef(context, new DefNode("DamageArmorCategoryDef", {
+        name: props.name,
+        label: false,
+        contents: xobj({
+            multStat: props.multStat,
+            armorRatingStat: props.armorRatingStat,
+        })
+    }));
 };
 
 export interface DamageArmorCategoryProps {

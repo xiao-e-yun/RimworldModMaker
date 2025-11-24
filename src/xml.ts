@@ -13,7 +13,7 @@ export class XmlNode {
         if (contents === undefined) this.contents = [];
         else if (contents === null) this.contents = null;
         else this.contents = (Array.isArray(contents) ? contents : [contents])
-          .filter(node => !isString(node) || !isEmpty(node)) as XmlChild[];
+            .filter(node => !isString(node) || !isEmpty(node)) as XmlChild[];
     }
 
     get(tag: string): XmlNode | null {
@@ -133,5 +133,23 @@ export class XmlNode {
         return contents.some(c => c instanceof XmlNode && c.tag === "li");
     }
 }
+
+/** 
+ * Create an XmlNode.
+ * @example 
+ * x("tag", "content", { attr1: "value1" }) === <tag attr1="value1">content</tag>
+ */
 export const x = (tag: string, contents?: null | XmlChild | XmlChild[], attrs?: XmlAttrs) => new XmlNode(tag, attrs, contents)
-export const xls = (tags?: (XmlChild | [XmlChild, XmlAttrs])[]) => tags?.map(t => Array.isArray(t) ? x("li", ...t) : x("li", t))
+/**
+ * Convert an array of XmlChild or [XmlChild, XmlAttrs] to an array of XmlNode with tag "li".
+ * @example
+ * xls([ "item1", ["item2", { attr1: "value1" }]]) === <li>item1</li><li attr1="value1">item2</li>
+ */
+export const xls = (tags?: (undefined | XmlChild | [XmlChild, XmlAttrs])[]) => tags?.map(t => Array.isArray(t) ? x("li", ...t) : x("li", t))
+/** 
+ * Convert an object to XmlNode array.
+ * Each key-value pair in the object is converted to an XmlNode with the key as the tag and the value as the content.
+ * @example 
+ * xobj({foo: "bar", baz: "qux"}) === <foo>bar</foo><baz>qux</baz>
+ */
+export const xobj = (obj?: Record<string, XmlChild | XmlChild[] | null | undefined>) => obj ? Object.entries(obj).map(([k, v]) => x(k, v)) : [];

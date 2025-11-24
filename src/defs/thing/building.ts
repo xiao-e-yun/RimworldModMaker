@@ -1,23 +1,9 @@
-import { ContextWithoutFunctions, x } from "@/utils";
-import { Component, ExtendsComponent, getGraphicNode, GraphicProps } from "@/components";
-import { BaseDefProps, includeBaseDef } from "..";
-import { defineThing } from ".";
+import { Component, GraphicProps } from "@/components";
+import { ContextWithoutFunctions } from "@/utils";
+import { BaseDefProps } from "..";
 
 export const defineBuilding = (context: ContextWithoutFunctions, props: BuildingProps, components: Component[])  => {
-    return defineThing(context, [
-        ...includeBaseDef(props),
-        x("description", props.description),
-        x("building", [
-            x("paintable", props.state.paintable),
-            x("isInert", props.state.isInert),
-            x("isWall", props.state.isWall),
-            x("isPlaceOverableWall",props.state. isPlaceOverableWall),
-            x("ai_chillDestination", props.state.aiChillDestination),
-            x("supportsWallAttachments", props.state.supportsWallAttachments),
-            x("isStuffableAirtight", props.state.isStuffableAirtight),
-            getGraphicNode("blueprintGraphicData", props.state.blueprintGraphicData),
-        ]),
-    ], [ExtendsComponent("BaseBuilding"), ...components]);
+    //
 }
 
 export interface BuildingProps extends BaseDefProps {

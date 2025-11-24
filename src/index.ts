@@ -110,7 +110,6 @@ const bundleRuntime = (context: Context) => {
 
 const preHotReload = async (context: Context, modDependencies: ModDependency[]) => {
     modDependencies.push({
-        version: "1.0.0",
         displayName: "Hot Reload",
         packageId: "xiaoeyun.hotReload",
         steamWorkshopUrl: "steam://url/CommunityFilePage/3610957393",

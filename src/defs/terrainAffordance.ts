@@ -1,14 +1,17 @@
-import { BaseDefProps, includeBaseDef, registerDef, TerrainAffordanceDefId } from ".";
-import { ContextWithoutFunctions, toVec, x } from "@/utils"
+import { BaseDefProps, DefNode, registerDef, TerrainAffordanceDefId } from ".";
+import { ContextWithoutFunctions, toVec, xobj } from "@/utils"
 
 export const defineTerrainAffordance = (context: ContextWithoutFunctions, props: TerrainAffordanceProps): TerrainAffordanceDefId => {
-    return registerDef(context, x("TerrainAffordanceDef", [
-        ...includeBaseDef(props),
-        x("order", props.order),
-        x("affordanceOverlayColor", toVec(props.affordanceOverlayColor)),
-        x("visualizeOnAffordanceOverlay", props.visualizeOnAffordanceOverlay),
-        x("blockAffordanceOverlay", props.blockAffordanceOverlay),
-    ]));
+    return registerDef(context, new DefNode("TerrainAffordanceDef", {
+        name: props.name,
+        label: props.label,
+        contents: xobj({
+            order: props.order,
+            affordanceOverlayColor: toVec(props.affordanceOverlayColor),
+            visualizeOnAffordanceOverlay: props.visualizeOnAffordanceOverlay,
+            blockAffordanceOverlay: props.blockAffordanceOverlay,
+        })
+    }));
 }
 
 export interface TerrainAffordanceProps extends BaseDefProps {

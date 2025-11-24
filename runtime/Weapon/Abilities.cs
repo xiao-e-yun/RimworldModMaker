@@ -41,8 +41,8 @@ namespace RimWorldModMakerRuntime {
           get
           {
               List<Ability> abilitysForReading = new List<Ability>();
-              foreach (AbilityDef abilitieDef in this.Props.AbilitieDefs)
-                  abilitysForReading.Add(AbilityUtility.MakeAbility(abilitieDef, this.Holder));
+              foreach (AbilityDef abilityDef in this.Props.AbilityDefs)
+                  abilitysForReading.Add(AbilityUtility.MakeAbility(abilityDef, this.Holder));
               return abilitysForReading;
           }
       }
@@ -50,7 +50,7 @@ namespace RimWorldModMakerRuntime {
 
   public class CompProperties_WeaponAbilities : CompProperties
   {
-      public List<AbilityDef> AbilitieDefs;
+      public List<AbilityDef> AbilityDefs;
       public CompProperties_WeaponAbilities() => this.compClass = typeof(CompWeaponAbilities);
   }
 }

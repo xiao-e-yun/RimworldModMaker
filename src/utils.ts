@@ -4,6 +4,7 @@ import { XmlNode } from '@/utils';
 import { CustomInstance } from 'better-logging';
 import { DecoratedInstance } from 'better-logging/dist/lib/interfaces/decoratedInstance';
 import { randomUUID } from 'crypto';
+import { ModDependency } from './common/mod';
 
 export * from "@/io"
 export * from "@/xml"
@@ -23,8 +24,10 @@ export interface ContextWithoutFunctions {
         outputPath: string;
     }
     defsTree: Record<string, XmlNode[]>;
+    dependencies: Map<string, ModDependency>;
     assets: Record<string, Map<string, string>>;
     requiredRuntime: boolean
+    packageId: string;
 }
 export type Context = ReturnType<typeof bindContext<ContextWithoutFunctions, typeof CONTEXT_BINDINGS>>
 
@@ -46,3 +49,22 @@ export function bindContext<T extends ContextWithoutFunctions, Fns extends Recor
 export const generateUUID = randomUUID;
 
 export const toVec = (arr: number[]) => `(${arr.join(", ")})`;
+
+
+export function withDefaults<T extends Record<string, any>, U extends Partial<T>>(
+    props: T,
+    defaults: U
+): T & U {
+    return {
+        ...defaults,
+        ...props,
+    };
+}
+
+export type RequiredKeys<T> = { [K in keyof T]-?:
+    ({} extends { [P in K]: T[K] } ? never : K)
+}[keyof T]
+
+export type OptionalKeys<T> = { [K in keyof T]-?:
+    ({} extends { [P in K]: T[K] } ? K : never)
+}[keyof T]
