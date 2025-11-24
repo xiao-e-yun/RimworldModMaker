@@ -1,25 +1,24 @@
-import {SimpleComponent} from "../";
-import {toVec, x} from "@/utils";
+import { SimpleComponent } from "../";
+import { toVec, x } from "@/utils";
 
 export const GraphicComponent = (props: GraphicProps) => new SimpleComponent("GraphicComponent", {
-  props: [
-    x("graphicData", [
-      x("texPath", props.textures),
-      x("maskPath", props.masks),
-      x("graphicClass", props.graphic),
-      x("shaderType", props.shader),
-      x("drawSize", Array.isArray(props?.scale) ? toVec(props.scale) : props.scale),
-      x("drawOffsetNorth", props.offset?.north),
-      x("drawOffsetEast", props.offset?.east),
-      x("drawOffsetSouth", props.offset?.south),
-      x("drawOffsetWest", props.offset?.west),
-      x("onGroundRandomRotateAngle", props.dropRandomlyRotated),
-      x("drawRotated", props.drawRotated),
-      x("allowFlip", props.allowFlip),
-    ])
-  ], 
-  required: []
+  props: [getGraphicNode("graphicData", props)],
 })
+
+export const getGraphicNode = (name: string, props: GraphicProps) => x(name, [
+  x("texPath", props.textures),
+  x("maskPath", props.masks),
+  x("graphicClass", props.graphic),
+  x("shaderType", props.shader),
+  x("drawSize", Array.isArray(props?.scale) ? toVec(props.scale) : props.scale),
+  x("drawOffsetNorth", props.offset?.north),
+  x("drawOffsetEast", props.offset?.east),
+  x("drawOffsetSouth", props.offset?.south),
+  x("drawOffsetWest", props.offset?.west),
+  x("onGroundRandomRotateAngle", props.dropRandomlyRotated),
+  x("drawRotated", props.drawRotated),
+  x("allowFlip", props.allowFlip),
+])
 
 export interface GraphicProps {
   textures: string,

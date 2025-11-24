@@ -3,8 +3,8 @@ import { registerDef, ThingDefId } from "..";
 import { Component, registerComponents } from "@/components";
 
 export * from "./building"
-export * from "./weapon"
 export * from "./category"
+export * from "./weapon"
 
 export const defineThing = (context: ContextWithoutFunctions, nodes: XmlNode[], components: Component[]): ThingDefId => {
     const def = x("ThingDef", nodes);
