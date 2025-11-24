@@ -8,6 +8,7 @@ A **TypeScript framework** for programmatically creating RimWorld mods.
 - Write mods easily with **TypeScript / JavaScript**  
 - **Compile-time type checking** saves development time  
 - **Component-based design** improves readability  
+- **Hot reloading** for rapid development
 
 ## 🔮 Future Features
 

@@ -1,4 +1,4 @@
-import { chain, kebabCase } from "lodash";
+import { camelCase, chain } from "lodash";
 import { bindContext, $console, Context, CONTEXT_BINDINGS } from "@/utils";
 import { x, xls } from "@/xml";
 import { existsSync, rmdirSync } from "fs";
@@ -36,15 +36,35 @@ export function defineMod(
 
     $console.log(`Building mod: ${options.name} (${options.id})`);
     $console.log(`Writing About.xml...`);
+    const modDependencies = x("modDependencies")
+    if (options.hotReload) {
+        modDependencies.push(
+            x("li", [
+                x("packageId", "xiaoeyun.hotReload"),
+                x("displayName", "Hot Reload"),
+                x("steamWorkshopUrl", "steam://url/CommunityFilePage/3610957393"),
+            ])
+        )
+        context.writeJson("hotReload.json", {
+            enabled: true,
+            assets: true,
+            defs: true,
+            watch: false,
+            api: true
+        });
+    }
+
     const firstAuthor = Array.isArray(options.author) ? options.author[0] : options.author;
+    const packageId = `${camelCase(firstAuthor)}.${camelCase(options.id)}`;
     context.writeXmlFile(`About/About.xml`,
         x("ModMetaData", [
-            x("packageId", `${kebabCase(firstAuthor)}.${kebabCase(options.id)}`),
+            x("packageId", packageId),
             x("name", options.name),
             x("author", options.author),
             x("description", options.description || ""),
             x("modVersion", options.version),
             x("supportedVersions", xls(options.supportedVersions)),
+            modDependencies,
         ])
     );
 
@@ -59,11 +79,10 @@ export function defineMod(
     const defs = Object.values(context.defsTree).flat();
     context.writeXmlFile(`Defs/Defs.xml`, x("Defs", defs));
 
-    if (!context.requiredRuntime || options.hotReload) {
+    if (!context.requiredRuntime) {
         $console.log(`Bundling runtime...`);
         const dll = path.join(import.meta.dir, "RimWorldModMakerRuntime.dll")
         context.copyFile(dll, `Assemblies/RimWorldModMakerRuntime.dll`);
-        context.writeRuntimeJson({ hotReload: options.hotReload });
     }
 
     $console.log(`Mod build completed: ${context.appSettings.outputPath}`);
@@ -96,7 +115,7 @@ export function defineMod(
 
     /* Trigger hot reload */
     if (options.hotReload)
-        fetch("http://localhost:8700/hot-reload", { method: "POST" })
+        fetch("http://localhost:8700/hot-reload", { method: "POST", body: JSON.stringify({ mods: [packageId] }) })
             .catch(() => $console.warn("Failed to trigger hot reload."));
 }
 

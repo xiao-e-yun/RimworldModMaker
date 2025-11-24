@@ -1,7 +1,7 @@
 import {copyFileSync, existsSync, mkdirSync, writeFileSync} from "fs";
 import {$console, ContextWithoutFunctions, XmlNode, generateUUID} from "@/utils";
 
-export const IO_CONTEXT_BINDINGS = {getPath, writeXmlFile, writeRuntimeJson, copyFile, bundleAssets, bundleSounds, bundleTextures } as const;
+export const IO_CONTEXT_BINDINGS = {getPath, writeXmlFile, writeJson, copyFile, bundleAssets, bundleSounds, bundleTextures } as const;
 
 export function getPath(ctx: ContextWithoutFunctions, path: string) {
   if (path.startsWith("/")) {
@@ -18,8 +18,9 @@ export function writeXmlFile(ctx: ContextWithoutFunctions, path: string, xml: Xm
   writeFileSync(normalizedPath, xmlDeclaration + xml.stringify(ctx.appSettings.pretty));
 }
 
-export function writeRuntimeJson(ctx: ContextWithoutFunctions, json: any) {
-  const normalizedPath = getPath(ctx, "runtime.json");
+export function writeJson(ctx: ContextWithoutFunctions, path: string, json: any) {
+  const normalizedPath = getPath(ctx, path);
+  createDirectoryBasedFile(normalizedPath);
   writeFileSync(normalizedPath, JSON.stringify(json, null, ctx.appSettings.pretty ? 2 : 0));
 }
 
