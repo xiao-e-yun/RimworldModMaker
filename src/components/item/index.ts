@@ -1,2 +1,2 @@
 export * from "./recipe"
-export * from "../weapon/abilities"
+export * from "./explosive"

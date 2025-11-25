@@ -61,11 +61,29 @@ export class DefNode extends XmlNode {
         if (this.label) this.push(x("label", this.label));
         return super.stringify(pretty, indentLevel);
     }
+    
+    // shortcuts
+    get statBases() {
+        return this.getOrCreate("statBases");
+    }
 }
 
 export class DefId<T extends string = string> {
     constructor(public type: T, public id: string) { }
     equals(id: DefId) { return this.type === id.type && this.id === id.id; }
+
+    clone(): DefId<T> {
+        return new DefId(this.type, this.id);
+    }
+
+    // We override toString to return the id string
+    toString() {
+        return this.id; 
+    }
+
+    static isDefId(obj: any): obj is DefId {
+        return obj instanceof DefId;
+    }
 }
 
 export function createDefId<T extends string>(type: T, id: string): DefId<T> { return new DefId(type, id); };
@@ -79,15 +97,7 @@ export function registerDef<T extends string>(ctx: ContextWithoutFunctions, def:
     return createDefId(def.tag, def.name) as DefId<T>;
 }
 
-export function getDefId(def?: DefId<any>): string | undefined
-export function getDefId(def?: DefId<any>[]): string[] | undefined
-export function getDefId(def?: DefId<any> | DefId<any>[]): string | string[] | undefined {
-    if (!def) return;
-    if (Array.isArray(def)) return def.map(d => d.id);
-    return def.id;
-}
-
 export interface BaseDefProps {
     name: string;
-    label: string;
+    label: string | false;
 }

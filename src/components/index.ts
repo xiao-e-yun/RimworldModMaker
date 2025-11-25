@@ -6,27 +6,32 @@ export * from "./common/"
 export * from "./item/"
 export * from "./weapon/"
 export * from "./hediff"
+export * from "./building/"
 
 export class SimpleComponent implements Component {
     id: string;
     props: XmlNode[]
     required: string[];
     requiredRuntime = false;
+    setup?: (def: DefNode) => void;
 
     constructor(id: string, options: {
         props: XmlNode[];
         required?: string[];
         requiredRuntime?: boolean;
+        setup?: (def: DefNode) => void;
     }) {
         this.id = id;
         this.props = options?.props;
         this.required = options?.required ?? [];
         this.requiredRuntime = !!options?.requiredRuntime
+        this.setup = options?.setup;
     };
 
     modify(def: DefNode) {
         def.mergeChildren(...this.props);
         def.required.runtime ||= this.requiredRuntime;
+        this.setup?.(def);
     }
 }
 
@@ -36,18 +41,24 @@ export class CompComponent implements Component {
     required: string[];
     isExtends: boolean;
     requiredRuntime = false;
+    setup?: (def: DefNode) => void;
 
     constructor(compClass: string, options?: {
         props?: XmlNode[];
         isExtends?: boolean;
         required?: string[];
         requiredRuntime?: boolean;
+        /**
+         * A setup function that allows for additional customization of the DefNode after the component has been added.
+         */
+        setup?: (def: DefNode) => void;
     }) {
         this.id = compClass
         this.props = options?.props ?? [];
         this.isExtends = !!options?.isExtends
         this.required = options?.required ?? [];
         this.requiredRuntime = !!options?.requiredRuntime
+        this.setup = options?.setup;
     };
 
     modify(def: DefNode) {
@@ -55,6 +66,7 @@ export class CompComponent implements Component {
         if (this.isExtends) comps.push(x("li", this.props, { Class: this.id }))
         else comps.push(x("li", [x("compClass", this.id), ...this.props]))
         def.required.runtime ||= this.requiredRuntime;
+        this.setup?.(def);
     }
 }
 

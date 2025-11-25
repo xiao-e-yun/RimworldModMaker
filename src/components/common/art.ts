@@ -1,4 +1,4 @@
-import { getDefId, RulePackDefId } from "@/defs";
+import { RulePackDefId } from "@/defs";
 import { CompComponent } from "..";
 import { xobj } from "@/utils";
 
@@ -14,8 +14,8 @@ export const ArtComponent = (
     canBeEnjoyedAsArt: boolean = true,
 ) => new CompComponent("CompProperties_Art", {
     props: xobj({
-        nameMaker: getDefId(nameMaker),
-        descriptionMaker: getDefId(descriptionMaker),
+        nameMaker: nameMaker,
+        descriptionMaker: descriptionMaker,
         minQualityForArtistic: minQualityForArtistic,
         mustBeFullGrave: mustBeFullGrave,
         canBeEnjoyedAsArt: canBeEnjoyedAsArt,

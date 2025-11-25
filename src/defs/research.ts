@@ -1,4 +1,4 @@
-import { BaseDefProps, DefNode, getDefId, registerDef, ResearchProjectDefId, ResearchProjectTagDefId, ResearchTabDefId, ThingDefId } from ".";
+import { BaseDefProps, DefNode, registerDef, ResearchProjectDefId, ResearchProjectTagDefId, ResearchTabDefId, ThingDefId } from ".";
 import { TechLevel } from "../common";
 import { ContextWithoutFunctions, x, xls, xobj } from "@/utils"
 
@@ -24,23 +24,23 @@ export const defineResearchProject = (context: ContextWithoutFunctions, props: R
         label: props.label,
         contents: xobj({
             description: props.description,
-            tab: getDefId(props.tab),
+            tab: props.tab,
 
             baseCost: props.baseCost,
 
-            tags: xls(getDefId(props.tags)),
+            tags: xls(props.tags),
 
             researchViewX: props.position[0],
             researchViewY: props.position[1] * 0.7,
 
-            prerequisites: xls(getDefId(props.prerequisites)),
-            hiddenPreqrequisites: xls(getDefId(props.hiddenPreqrequisites)),
+            prerequisites: xls(props.prerequisites),
+            hiddenPreqrequisites: xls(props.hiddenPreqrequisites),
 
             techLevel: props.required?.techLevel ?? TechLevel.Neolithic,
 
             requiredAnalyzed: xls(props.required?.analyzed),
-            requiredResearchBuilding: getDefId(props.required?.researchBuilding),
-            requiredResearchFacilities: xls(getDefId(props.required?.researchFacilities)),
+            requiredResearchBuilding: props.required?.researchBuilding,
+            requiredResearchFacilities: xls(props.required?.researchFacilities),
             requiresMechanitor: props.required?.mechanitor,
 
             techprintMarketValue: props.techprint?.marketValue,

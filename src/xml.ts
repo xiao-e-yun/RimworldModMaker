@@ -1,8 +1,10 @@
-import { castArray, cloneDeep, isEmpty, isString, map } from "lodash";
+import { castArray, chain, cloneDeep, isEmpty, isString, isUndefined, map } from "lodash";
 import { $console } from "./utils";
+import { DefId } from "./defs";
 
-export type XmlAttrs = Record<string, string | number | boolean>;
-export type XmlChild = XmlNode | string | boolean | number;
+export type XmlAttrs = Record<string, DefId | string | number | boolean>;
+export type XmlChild = XmlNode | DefId | string | boolean | number;
+export type XmlChildWithoutDefId = XmlNode | string | boolean | number;
 export class XmlNode {
     tag: string;
     attrs: XmlAttrs;
@@ -13,7 +15,8 @@ export class XmlNode {
         this.attrs = attrs ?? {};
         if (contents === undefined) this.contents = [];
         else if (contents === null) this.contents = null;
-        else this.contents = castArray(contents).filter(node => !isString(node) || !isEmpty(node)) as XmlChild[];
+        else this.contents = castArray(contents)
+            .filter(node => !isString(node) || !isEmpty(node)) as XmlChild[];
     }
 
     get(tag: string): XmlNode | null {
@@ -86,7 +89,7 @@ export class XmlNode {
         return new XmlNode(
             this.tag,
             cloneDeep(this.attrs),
-            this.contents?.map(content => XmlNode.isXmlNode(content) ? content.clone() : content)
+            this.contents?.map(content => (XmlNode.isXmlNode(content) || DefId.isDefId(content)) ? content.clone() : content)
         );
     }
 
@@ -94,24 +97,27 @@ export class XmlNode {
         const attrs = map(this.attrs, (value, key) => ` ${key}="${value}"`).join("");
 
         // Handle null cases
-        const f: (s: string | number | boolean, space?: boolean) => string = pretty ? (s, m = false) => '  '.repeat(indentLevel + (m ? 1 : 0)) + s + '\n' : (s) => String(s);
-
+        const f: (s: DefId | string | number | boolean, space?: boolean) => string = pretty ?
+            (s, m = false) => '  '.repeat(indentLevel + (m ? 1 : 0)) + s + '\n' : (s) => String(s);
         if (this.contents === null) return f(`<${this.tag}${attrs} IsNull="True" />`);
 
-        if (!this.contents.length && !attrs) return ""; // Empty node with no attributes
+        // Handle single primitive content cases
+        if (this.contents.length === 1 && !XmlNode.isXmlNode(this.contents[0]))
+            return f(`<${this.tag}${attrs}>${this.contents[0]}</${this.tag}>`);
 
-        const results = [f(`<${this.tag}${attrs}>`)];
-        if (pretty && this.contents.length == 1 && !XmlNode.isXmlNode(this.contents[0])) {
-            if (this.contents[0] !== undefined) return f(`<${this.tag}${attrs}>${this.contents[0]}</${this.tag}>`);
-            if (attrs) return f(`<${this.tag}${attrs} />`);
-            return ""; // Empty node with no attributes
-        } else for (const content of this.contents) {
-            const result = XmlNode.isXmlNode(content) ? content.stringify(pretty, indentLevel + 1) : f(content, true);
-            if (result) results.push(result);
-        }
-        if (results.length === 1 && !attrs) return ""; // Empty node with no attributes
-        results.push(f(`</${this.tag}>`));
-        return results.join("");
+        // filter out undefined contents
+        const contents = chain(this.contents)
+            .filter(c => !isUndefined(c) || c !== "")
+            .map(c => XmlNode.isXmlNode(c) ? c.stringify(pretty, indentLevel+1) : f(c, true))
+            .filter(c => c !== "") // skip empty xml nodes
+            .value()
+            .join("");
+
+        // Handle empty contents
+        if (!contents) return attrs && f(`<${this.tag}${attrs} />`);
+
+        // Handle multiple contents
+        return f(`<${this.tag}${attrs}>`) + contents + f(`</${this.tag}>`);
     }
 
     static isXmlNode(obj: any): obj is XmlNode {

@@ -4,9 +4,41 @@ import { BaseDefProps, DefNode, registerDef, ThingDefProps, ThingStats } from ".
 import { AltitudeLayer, TechLevel, TickerType } from "@/common";
 import { omit } from "lodash-es";
 
+/**
+ * Defines a weapon ThingDef.
+ * 
+ * @props
+ * description
+ * thingClass
+ * category
+ * drawerType
+ * drawGUIOverlay
+ * altitudeLayer
+ * alwaysHaulable
+ * tickerType
+ * useHitPoints
+ * pathCost
+ * selectable
+ * rotatable
+ * allowedArchonexusCount
+ * techLevel
+ * equipmentType
+ * 
+ * @stats
+ * - Mass
+ * - Beauty
+ * - Flammability
+ * - SellPriceFactor
+ * - DeteriorationRate
+ * 
+ * @components
+ * - EquippableComponent
+ * - ForbiddableComponent
+ * - StyleableComponent
+ */
 export const defineWeapon = (context: ContextWithoutFunctions, props: Partial<WeaponProps> & BaseDefProps, stats: ThingStats, components: Component[]) => {
     const $props = withDefaults(props, {
-        description: props.label,
+        description: props.label || "No description provided.",
         thingClass: "ThingWithComps",
         category: "Item",
         drawerType: "MapMeshOnly",
@@ -26,6 +58,10 @@ export const defineWeapon = (context: ContextWithoutFunctions, props: Partial<We
 
     const $stats = withDefaults(stats, {
         Mass: 3.0,
+        Beauty: -3,
+        Flammability: 0.8,
+        SellPriceFactor: 0.5,
+        DeteriorationRate: 2.0,
     } as const)
 
     return registerDef(context, new DefNode("ThingDef", {

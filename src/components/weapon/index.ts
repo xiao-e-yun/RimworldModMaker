@@ -1,6 +1,9 @@
 import {CompComponent, SimpleComponent} from "..";
 import {x, xls} from "../../xml";
 
+export * from "./attack";
+export * from "./abilities";
+
 export const EquippableComponent = () => new CompComponent("CompEquippable");
 export const StyleableComponent = () => new CompComponent("CompProperties_Styleable", {isExtends: true});
 export const ForbiddableComponent = () => new CompComponent("CompProperties_Forbiddable", {isExtends: true});

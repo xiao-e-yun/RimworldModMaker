@@ -1,6 +1,6 @@
-import { EffecterDefId, getDefId, ResearchProjectDefId, SoundDefId, StatDefId, StuffCategoryDefId, ThingCategoryDefId, ThingDefId, WorkTypeDefId } from "@/defs";
+import { DefNode, EffecterDefId, ResearchProjectDefId, SoundDefId, StatDefId, StuffCategoryDefId, ThingCategoryDefId, ThingDefId, WorkTypeDefId } from "@/defs";
 import { Component } from "..";
-import { x, xls, XmlNode } from "../../xml";
+import { x, xls, xobj } from "../../xml";
 
 export const RecipeComponent = (recipeMaker: Recipe, costs: RecipeCosts) => new class implements Component {
     id = "RecipeComponent";
@@ -14,46 +14,40 @@ export const RecipeComponent = (recipeMaker: Recipe, costs: RecipeCosts) => new 
         this.costs = costs;
     }
 
-    modify(def: XmlNode) {
+    modify(def: DefNode) {
 
-        const skillRequirements = this.recipeMaker.skillRequirements && this.recipeMaker.skillRequirements.map(([k, v]) => x(getDefId(k)!, v))
+        const skillRequirements = this.recipeMaker.skillRequirements?.map(([k, v]) => x(k.toString(), v))
 
-        const maker = x("recipeMaker", [
-            x("researchPrerequisite", getDefId(this.recipeMaker.researchPrerequisite)),
-            x("workSpeedStat", getDefId(this.recipeMaker.workSpeedStat)),
-            x("skillRequirements", skillRequirements),
-            x("workSkill", getDefId(this.recipeMaker.workSkill)),
-            x("effectWorking", getDefId(this.recipeMaker.effectWorking)),
-            x("soundWorking", getDefId(this.recipeMaker.soundWorking)),
-            x("recipeUsers", xls(getDefId(this.recipeMaker.recipeUsers))),
-        ])
+        const maker = x("recipeMaker", xobj({
+            researchPrerequisite: this.recipeMaker.researchPrerequisite,
+            workSpeedStat: this.recipeMaker.workSpeedStat,
+            skillRequirements: skillRequirements,
+            workSkill: this.recipeMaker.workSkill,
+            effectWorking: this.recipeMaker.effectWorking,
+            soundWorking: this.recipeMaker.soundWorking,
+            recipeUsers: xls(this.recipeMaker.recipeUsers),
+        }))
         def.push(maker);
 
-        const costList = this.costs.list && this.costs.list.map(([k, v]) => x(getDefId(k)!, v));
-        def.push(x("costList", costList));
+        def.push(x("costList", this.costs.list?.map(([k, v]) => x(k.toString(), v))));
 
-        if (this.costs.stuff) {
-            const { accepts, count } = this.costs.stuff;
-            def.push(
-                x("costStuffCount", count),
-                x("stuffCategories", xls(getDefId(accepts)))
-            )
-        }
+        if (this.costs.stuff) def.push(...xobj({
+            costStuffCount: this.costs.stuff.count,
+            stuffCategories: xls(this.costs.stuff.accepts)
+        }))
 
-        if (this.costs.ingredient) {
-            def.push(x("ingredients", xls(this.costs.ingredient.map(ing => x("li", [
-                x("filter", [
-                    x("customSummary", ing.name),
-                    x("categories", xls(getDefId(ing.accepts))),
-                ]),
-                x("count", ing.count.toString()),
-            ])))))
-        }
+        if (this.costs.ingredient) def.push(x("ingredients", xls(this.costs.ingredient.map(ing => xobj({
+            filter: xobj({
+                customSummary: ing.name,
+                categories: xls(ing.accepts),
+            }),
+            count: ing.count,
+        })))))
 
-        def.getOrCreate("statBases").push(x("WorkToMake", this.recipeMaker.workToMake.toString()));
+        def.statBases.push(x("WorkToMake", this.recipeMaker.workToMake.toString()));
     }
 }(recipeMaker, costs)
-
+ 
 export interface Recipe {
     /** The amount of work required to complete the recipe. */
     workToMake: number;

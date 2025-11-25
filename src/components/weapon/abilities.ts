@@ -1,13 +1,4 @@
-// <li Class="CompProperties_EquippableAbilityReloadable">
-//     <abilityDef>Zhurong</abilityDef>
-//     <maxCharges>10</maxCharges>
-//     <soundReload>Standard_Reload</soundReload>
-//     <chargeNoun>burner charge</chargeNoun>
-//     <ammoDef>Bioferrite</ammoDef>
-//     <ammoCountPerCharge>20</ammoCountPerCharge>
-//     <baseReloadTicks>60</baseReloadTicks>
-// </li>
-import { AbilityDefId, getDefId } from "@/defs";
+import { AbilityDefId } from "@/defs";
 import { CompComponent } from "..";
 import { xls, xobj } from "../../xml";
 import { runtimeClass } from "@/index";
@@ -15,7 +6,7 @@ import { runtimeClass } from "@/index";
 
 export const WeaponAbilitiesComponent = (abilities: AbilityDefId[]) => new CompComponent(runtimeClass("CompProperties_WeaponAbilities"), {
   props: xobj({
-    AbilityDefs: xls(getDefId(abilities))
+    AbilityDefs: xls(abilities)
   }),
   isExtends: true,
   required: ["CompEquippable"],

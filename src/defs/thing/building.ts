@@ -1,24 +1,86 @@
 import { Component, GraphicProps } from "@/components";
-import { ContextWithoutFunctions } from "@/utils";
-import { BaseDefProps } from "..";
+import { ContextWithoutFunctions, withDefaults, x, xls, xobj, xstats } from "@/utils";
+import { DefNode, EffecterDefId, registerDef, SoundDefId, TerrainAffordanceDefId, ThingDefId, ThingDefProps, ThingStats } from "..";
+import { omit } from "lodash-es";
+import { AltitudeLayer, TickerType } from "@/common";
 
-export const defineBuilding = (context: ContextWithoutFunctions, props: BuildingProps, components: Component[])  => {
+
+/**
+ * Defines a building ThingDef.
+ * 
+ */
+export const defineBuilding = (context: ContextWithoutFunctions, props: BuildingProps, stats: BuildingStats, components: Component[]) => {
+
+    const $props = withDefaults(props, {
+        description: props.label || "No description provided.",
+        thingClass: "Building",
+        category: "Building",
+        drawerType: "MapMeshOnly",
+        altitudeLayer: AltitudeLayer.Building,
+        tickerType: TickerType.Never,
+        useHitPoints: true,
+        pathCost: 14,
+        selectable: true,
+        rotatable: false,
+        settings: {},
+    } as const)
+
+    const $stats = withDefaults(stats, {
+        Mass: 3.0,
+        Beauty: -3,
+        Flammability: 0.8,
+        SellPriceFactor: 0.5,
+        DeteriorationRate: 2.0,
+    } as const)
     //
+
+    return registerDef(context, new DefNode("ThingDef", {
+        name: props.name,
+        label: props.label,
+        contents: [
+            ...xobj(omit($props, ["name", "label", "settings"])),
+            x("building", xobj({
+                ...$props.settings as Record<string, unknown>,
+                relatedBuildCommands: xls($props.settings.relatedBuildCommands),
+            })),
+            xstats($stats),
+        ],
+        components,
+    }));
 }
 
-export interface BuildingProps extends BaseDefProps {
-    description?: string;
-    state: {
-        paintable: boolean,
-        isInert: boolean,
-        isWall: boolean,
-        isPlaceOverableWall: boolean,
-        aiChillDestination: boolean,
-        supportsWallAttachments: boolean,
-        isStuffableAirtight: boolean,
-        blueprintGraphicData: GraphicProps,
-    }
+export interface BuildingProps extends ThingDefProps {
+    description: string;
+
+    soundImpactDefault?: SoundDefId;
+    terrainAffordanceNeeded?: TerrainAffordanceDefId;
+    leaveResourcesWhenKilled?: boolean;
+    repairEffect?: EffecterDefId;
+    filthLeaving?: ThingDefId;
+    blockLight?: boolean;
+    blockWind?: boolean;
+    canOverlapZones?: boolean;
+    castEdgeShadows?: boolean;
+
+    settings?: BuildingSettings;
 }
+
+export interface BuildingSettings {
+    paintable?: boolean,
+    isInert?: boolean,
+    isWall?: boolean,
+    isPlaceOverableWall?: boolean,
+    ai_chillDestination?: boolean,
+    supportsWallAttachments?: boolean,
+    isStuffableAirtight?: boolean,
+    blueprintGraphicData?: GraphicProps,
+    relatedBuildCommands?: ThingDefId[],
+}
+
+export interface BuildingStats extends ThingStats {
+    WorkToBuild?: number;
+}
+
 // <ThingDef>
 //   <defName>Wall</defName>
 //   <altitudeLayer>Building</altitudeLayer>
