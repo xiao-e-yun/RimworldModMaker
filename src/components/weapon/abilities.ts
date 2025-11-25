@@ -18,7 +18,7 @@ export const WeaponAbilitiesComponent = (abilities: AbilityDefId[]) => new CompC
     AbilityDefs: xls(getDefId(abilities))
   }),
   isExtends: true,
-  required: ["GenericWeapon"],
+  required: ["CompEquippable"],
   requiredRuntime: true,
 })
 

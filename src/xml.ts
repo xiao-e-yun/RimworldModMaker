@@ -1,4 +1,5 @@
-import { cloneDeep, isEmpty, isString } from "lodash";
+import { castArray, cloneDeep, isEmpty, isString, map } from "lodash";
+import { $console } from "./utils";
 
 export type XmlAttrs = Record<string, string | number | boolean>;
 export type XmlChild = XmlNode | string | boolean | number;
@@ -12,8 +13,7 @@ export class XmlNode {
         this.attrs = attrs ?? {};
         if (contents === undefined) this.contents = [];
         else if (contents === null) this.contents = null;
-        else this.contents = (Array.isArray(contents) ? contents : [contents])
-            .filter(node => !isString(node) || !isEmpty(node)) as XmlChild[];
+        else this.contents = castArray(contents).filter(node => !isString(node) || !isEmpty(node)) as XmlChild[];
     }
 
     get(tag: string): XmlNode | null {
@@ -27,8 +27,8 @@ export class XmlNode {
     getOrCreate(tag: string): XmlNode {
         let node = this.get(tag);
         if (!node) {
-            node = new XmlNode(tag);
             if (!this.contents) this.contents = [];
+            node = new XmlNode(tag);
             this.contents.push(node);
         }
         return node;
@@ -70,36 +70,28 @@ export class XmlNode {
 
 
     push(...children: XmlChild[]) {
-        if (this.contents === null) throw new Error("Cannot push to XmlNode with null contents");
+        if (this.contents === null) {
+            $console.warn(`Cannot push children to XmlNode with null contents (tag: ${this.tag})`);
+            this.contents = [];
+        }
         this.contents.push(...children);
     }
 
     remove(...tags: string[]) {
         if (!this.contents) return;
-        this.contents = this.contents.filter(content => !(content instanceof XmlNode && tags.includes(content.tag)));
+        this.contents = this.contents.filter(content => !(XmlNode.isXmlNode(content) && tags.includes(content.tag)));
     }
-
-    text(): string {
-        if (!this.contents) return "";
-        return this.contents.map(c => c instanceof XmlNode ? c.text() : c).join("");
-    }
-
-    first(): XmlChild | null {
-        if (!this.contents) return null;
-        return this.contents[0] ?? null;
-    }
-
 
     clone(): XmlNode {
         return new XmlNode(
             this.tag,
             cloneDeep(this.attrs),
-            this.contents?.map(content => content instanceof XmlNode ? content.clone() : content)
+            this.contents?.map(content => XmlNode.isXmlNode(content) ? content.clone() : content)
         );
     }
 
     stringify(pretty = false, indentLevel = 0): string {
-        const attrs = Object.entries(this.attrs).map(([key, value]) => ` ${key}="${value}"`).join("");
+        const attrs = map(this.attrs, (value, key) => ` ${key}="${value}"`).join("");
 
         // Handle null cases
         const f: (s: string | number | boolean, space?: boolean) => string = pretty ? (s, m = false) => '  '.repeat(indentLevel + (m ? 1 : 0)) + s + '\n' : (s) => String(s);
@@ -140,16 +132,22 @@ export class XmlNode {
  * x("tag", "content", { attr1: "value1" }) === <tag attr1="value1">content</tag>
  */
 export const x = (tag: string, contents?: null | XmlChild | XmlChild[], attrs?: XmlAttrs) => new XmlNode(tag, attrs, contents)
+
 /**
  * Convert an array of XmlChild or [XmlChild, XmlAttrs] to an array of XmlNode with tag "li".
  * @example
  * xls([ "item1", ["item2", { attr1: "value1" }]]) === <li>item1</li><li attr1="value1">item2</li>
  */
-export const xls = (tags?: (undefined | XmlChild | [XmlChild, XmlAttrs])[]) => tags?.map(t => Array.isArray(t) ? x("li", ...t) : x("li", t))
+export const xls = (tags?: (XmlChild | XmlChild[] | null | undefined)[]) => tags?.map(t => x("li", t))
 /** 
  * Convert an object to XmlNode array.
  * Each key-value pair in the object is converted to an XmlNode with the key as the tag and the value as the content.
  * @example 
  * xobj({foo: "bar", baz: "qux"}) === <foo>bar</foo><baz>qux</baz>
  */
-export const xobj = (obj?: Record<string, XmlChild | XmlChild[] | null | undefined>) => obj ? Object.entries(obj).map(([k, v]) => x(k, v)) : [];
+export const xobj = <T extends Record<string, XmlChild | XmlChild[] | null | undefined>>(obj?: T) => map(obj, (v, k) => x(k, v));
+
+/**
+ * Create statBases XmlNode from a record of stats.
+ */
+export const xstats = <T extends Record<string, number | null | undefined>>(stats: T) => x("statBases", xobj(stats))

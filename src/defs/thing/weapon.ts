@@ -1,10 +1,10 @@
 import { Component, EquippableComponent, ForbiddableComponent, StyleableComponent } from "@/components";
-import { ContextWithoutFunctions, withDefaults, xobj } from "@/utils";
+import { ContextWithoutFunctions, withDefaults, xobj, xstats } from "@/utils";
 import { BaseDefProps, DefNode, registerDef, ThingDefProps, ThingStats } from "..";
 import { AltitudeLayer, TechLevel, TickerType } from "@/common";
 import { omit } from "lodash-es";
 
-export const defineWeapon = (context: ContextWithoutFunctions, props: Partial<WeaponProps> & BaseDefProps, components: Component[], stats?: ThingStats) => {
+export const defineWeapon = (context: ContextWithoutFunctions, props: Partial<WeaponProps> & BaseDefProps, stats: ThingStats, components: Component[]) => {
     const $props = withDefaults(props, {
         description: props.label,
         thingClass: "ThingWithComps",
@@ -24,15 +24,17 @@ export const defineWeapon = (context: ContextWithoutFunctions, props: Partial<We
         equipmentType: "Primary",
     } as const)
 
-    const $stats = withDefaults(stats ?? {}, {
+    const $stats = withDefaults(stats, {
         Mass: 3.0,
     } as const)
 
     return registerDef(context, new DefNode("ThingDef", {
         name: props.name,
         label: props.label,
-        stats: $stats,
-        contents: xobj(omit($props, ["name", "label"])),
+        contents: [
+            ...xobj(omit($props, ["name", "label"])),
+            xstats($stats),
+        ],
         components: [
             ForbiddableComponent(),
             EquippableComponent(),

@@ -1,4 +1,4 @@
-import { x, xls, xobj } from "@/xml";
+import { x, xls, xobj, xstats } from "@/xml";
 import { SimpleComponent } from "..";
 import { BodyPartGroupDefId, DamageDefId, SoundDefId, ThingDefId, getDefId, ToolCapacityDefId, VanillaThingDef } from "@/defs";
 
@@ -24,7 +24,7 @@ export const MeleeAttackComponent = (props: MeleeAttack[]) => new SimpleComponen
       ] : []),
     ])))
   ],
-  required: []
+  required: ["CompEquippable"]
 });
 
 export interface MeleeAttack {
@@ -47,27 +47,27 @@ export interface MeleeAttack {
 // Ranged Attack
 export const RangedAttackComponent = (props: RangedAttack[], options?: GenericRangedAttack) => new SimpleComponent("RangedAttack", {
   props: [
-    x("verbs", props.map(props => x("li", xobj({
+    x("verbs", xls(props.map(props => xobj({
       verbClass: props.verbClass,
       hasStandardCommand: props.hasStandardCommand ?? true,
       defaultProjectile: getDefId(props.defaultProjectile ?? VanillaThingDef.Bullet_AssaultRifle),
       warmupTime: props.warmupTime,
       range: props.range,
-      burstShotCount: props.burstShotCount,
-      ticksBetweenBurstShots: props.rpm && 3600 / props.rpm,
+      burstShotCount: props.burstShotCount ?? 2,
+      ticksBetweenBurstShots: 3600 / (props.rpm ?? 120),
       soundCast: getDefId(props.soundCast),
       soundCastTail: getDefId(props.soundCastTail),
       muzzleFlashScale: props.muzzleFlashScale,
-    }))))
+    })))),
+    xstats({
+      AccuracyTouch: options?.accuracy?.touch,
+      AccuracyShort: options?.accuracy?.short,
+      AccuracyMedium: options?.accuracy?.medium,
+      AccuracyLong: options?.accuracy?.long,
+      RangedWeapon_Cooldown: options?.cooldown,
+    })
   ],
-  stats: {
-    AccuracyTouch: options?.accuracy?.touch,
-    AccuracyShort: options?.accuracy?.short,
-    AccuracyMedium: options?.accuracy?.medium,
-    AccuracyLong: options?.accuracy?.long,
-    RangedWeapon_Cooldown: options?.cooldown,
-  },
-required: [],
+  required: ["CompEquippable"]
 });
 
 export interface RangedAttack {

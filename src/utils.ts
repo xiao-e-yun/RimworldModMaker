@@ -1,6 +1,5 @@
-import { DEFS_CONTEXT_BINDINGS } from '@/defs';
+import { DefNode, DEFS_CONTEXT_BINDINGS } from '@/defs';
 import { IO_CONTEXT_BINDINGS } from '@/io';
-import { XmlNode } from '@/utils';
 import { CustomInstance } from 'better-logging';
 import { DecoratedInstance } from 'better-logging/dist/lib/interfaces/decoratedInstance';
 import { randomUUID } from 'crypto';
@@ -23,7 +22,7 @@ export interface ContextWithoutFunctions {
         pretty: boolean;
         outputPath: string;
     }
-    defsTree: Record<string, XmlNode[]>;
+    defsTree: Record<string, DefNode[]>;
     dependencies: Map<string, ModDependency>;
     assets: Record<string, Map<string, string>>;
     requiredRuntime: boolean
@@ -60,11 +59,3 @@ export function withDefaults<T extends Record<string, any>, U extends Partial<T>
         ...props,
     };
 }
-
-export type RequiredKeys<T> = { [K in keyof T]-?:
-    ({} extends { [P in K]: T[K] } ? never : K)
-}[keyof T]
-
-export type OptionalKeys<T> = { [K in keyof T]-?:
-    ({} extends { [P in K]: T[K] } ? K : never)
-}[keyof T]

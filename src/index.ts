@@ -156,16 +156,16 @@ const displayDefTree = (context: Context) => {
     for (const [type, nodes] of tree) {
         $console.log(`* [${type}]`);
         const hasDuplicates = chain(nodes)
-            .map(n => n.get("defName")?.text() || "<unnamed>")
+            .map(n => n.name || "<unnamed>")
             .sortBy()
-            .some(defName => {
-                if (registered.has(defName)) {
-                    $console.error(`Duplicate defName detected: ${defName}`);
+            .some(name => {
+                if (registered.has(name)) {
+                    $console.error(`Duplicate defName detected: ${name}`);
                     $console.error(`  Each definition must have a unique defName.`);
                     return true;
                 }
-                $console.log(`  |- ${defName}`)
-                registered.add(defName);
+                $console.log(`  |- ${name}`)
+                registered.add(name);
                 return false
             })
             .value();

@@ -19,10 +19,11 @@ export type ThingDefProps = {
     selectable: boolean;
     rotatable: boolean;
     techLevel: TechLevel;
+    uiIconScale?: number;
     allowedArchonexusCount?: number;
 } & BaseDefProps
 
-export interface ThingStats {
+export interface ThingStats extends Record<string, number | null | undefined> {
     Mass: number;
     Beauty?: number;
     MarketValue?: number;

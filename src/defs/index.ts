@@ -1,10 +1,10 @@
-import { cloneDeep, isUndefined, merge, omitBy } from "lodash-es";
+import { cloneDeep, merge } from "lodash-es";
 import { defineDamage, defineDamageArmorCategory } from "./damage";
 import { defineResearchProject, defineResearchTab } from "./research";
 import { defineStat } from "./stat";
 import { defineTerrainAffordance } from "./terrainAffordance";
 import { defineBuilding, defineWeapon } from "./thing";
-import { ContextWithoutFunctions, x, XmlAttrs, XmlChild, XmlNode, xobj } from "@/utils"
+import { ContextWithoutFunctions, x, XmlAttrs, XmlChild, XmlNode } from "@/utils"
 import { Component, registerComponents } from "@/components";
 import { ModDependency } from "@/common/mod";
 
@@ -22,7 +22,6 @@ export class DefNode extends XmlNode {
     // basic fields
     name: string;
     label: string | false;
-    stats: Record<string, number> = {};
 
     components: Component[] = [];
     required = {
@@ -33,7 +32,6 @@ export class DefNode extends XmlNode {
     constructor(tag: string, options: {
         name: string
         label: string | false
-        stats?: Record<string, number>
         attrs?: XmlAttrs
         components?: Component[]
         contents?: null | XmlChild | XmlChild[]
@@ -41,13 +39,11 @@ export class DefNode extends XmlNode {
         super(tag, options.attrs, options.contents);
         this.name = options.name;
         this.label = options.label;
-        this.stats = options.stats ?? {};
         this.components = options.components ?? [];
     }
 
     override merge(rhs: DefNode) {
         super.merge(rhs);
-        this.stats = { ...this.stats, ...omitBy(rhs.stats, isUndefined) };
         this.components.push(...rhs.components);
     }
 
@@ -63,7 +59,6 @@ export class DefNode extends XmlNode {
     override stringify(pretty = false, indentLevel = 0): string {
         this.push(x("defName", this.name));
         if (this.label) this.push(x("label", this.label));
-        this.push(x("statBases", xobj(this.stats)));
         return super.stringify(pretty, indentLevel);
     }
 }

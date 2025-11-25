@@ -28,7 +28,7 @@ export const defineResearchProject = (context: ContextWithoutFunctions, props: R
 
             baseCost: props.baseCost,
 
-            tags: xls(props.tags?.map(t => t.id)),
+            tags: xls(getDefId(props.tags)),
 
             researchViewX: props.position[0],
             researchViewY: props.position[1] * 0.7,

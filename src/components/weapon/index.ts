@@ -1,6 +1,5 @@
-import {CompComponent, SimpleComponent} from "../../components";
+import {CompComponent, SimpleComponent} from "..";
 import {x, xls} from "../../xml";
-import {TechLevel} from "@/common";
 
 export const EquippableComponent = () => new CompComponent("CompEquippable");
 export const StyleableComponent = () => new CompComponent("CompProperties_Styleable", {isExtends: true});
@@ -9,16 +8,15 @@ export const BiocodableComponent = () => new CompComponent("CompProperties_Bioco
 
 export const GenericWeaponComponent = (props: GenericWeaponProps = {}) => new SimpleComponent("GenericWeapon", {
   props: [
-    x("techLevel", props.techLevel ?? TechLevel.Animal),
-    x("weaponClasses", xls([TechLevel.gte(props.techLevel ?? TechLevel.Animal, TechLevel.Neolithic) ? "Neolithic" : ""])),
     x("inspectorTabs", xls(["ITab_Art"])),
     x("tradeTags", xls(["Weapon"])),
   ]
 });
 
 export interface GenericWeaponProps {
-  tags?: string[];
-  techLevel?: TechLevel;
+  /** 
+   * vanilla melee weapons being -65 degrees, -25 degrees (ikwa), or -20 degrees (thrumbo horns, elephant tusks).
+   */
   equippedAngle?: number;
 }
 
@@ -29,7 +27,6 @@ export const MeleeWeaponComponent = (type: MeleeWeaponType) => new SimpleCompone
     x("weaponClasses", xls(["Melee", type])),
     x("tradeTags", xls(["WeaponMelee"])),
   ],
-  required: ["GenericWeapon"]
 });
 
 export enum MeleeWeaponType {
@@ -44,5 +41,4 @@ export const RangedWeaponComponent = () => new SimpleComponent("RangedWeapon", {
     x("weaponClasses", xls(["Ranged"])),
     x("tradeTags", xls(["WeaponRanged"])),
   ],
-  required: ["GenericWeapon"]
 });
