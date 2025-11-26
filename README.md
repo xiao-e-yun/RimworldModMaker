@@ -1,7 +1,9 @@
 # RimWorld Mod Maker
 
-A **TypeScript framework** for programmatically creating RimWorld mods.
+> [!WARNING]  
+> The project is in the early testing phase, and most of its features are not yet complete.
 
+A **TypeScript framework** for programmatically creating RimWorld mods.
 
 ## ✨ Features
 
