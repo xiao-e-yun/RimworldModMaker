@@ -3,7 +3,7 @@ import { defineDamage, defineDamageArmorCategory } from "./damage";
 import { defineResearchProject, defineResearchTab } from "./research";
 import { defineStat } from "./stat";
 import { defineTerrainAffordance } from "./terrainAffordance";
-import { defineBuilding, defineWeapon, defineApparel } from "./thing";
+import { defineBuilding, defineWeapon } from "./thing";
 import { defineThingCategory } from "./thing/category";
 import { defineRecipe } from "./recipe";
 import { defineHediff } from "./hediff";
@@ -29,7 +29,6 @@ export const DEFS_CONTEXT_BINDINGS = {
     defineBuilding, 
     defineDamageArmorCategory, 
     defineWeapon, 
-    defineApparel,
     defineStat, 
     defineThingCategory,
     defineRecipe,

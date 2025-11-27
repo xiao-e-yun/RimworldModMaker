@@ -4,7 +4,6 @@ import { BaseDefProps } from "..";
 export * from "./building"
 export * from "./category"
 export * from "./weapon"
-export * from "./apparel"
 
 export type ThingDefProps = {
     thingClass: string;
