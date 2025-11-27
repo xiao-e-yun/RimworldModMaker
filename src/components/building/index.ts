@@ -8,29 +8,29 @@ export const FlickableComponent = () => new CompComponent("CompProperties_Flicka
 
 
 export const PowerComponent = (props: PowerConsumerProps | PowerGeneratorProps) => {
-    const nodes = xobj(props.type === "CompPowerTrader" ? {
+    const typeSpecificProps = props.type === "CompPowerTrader" ? xobj({
         idlePowerDraw: props.idlePowerDraw,
         alwaysDisplayAsUsingPower: props.alwaysDisplayAsUsingPower,
         powerUpgrades: xls(props.powerUpgrades?.map(xobj)),
-    } : {
+    }) : xobj({
         transmitsPower: props.transmitsPower,
         soundAmbientProducingPower: props.soundAmbientProducingPower,
     });
-    new CompComponent("CompProperties_Power", {
+    return new CompComponent("CompProperties_Power", {
         isExtends: true,
         props: [
-            xobj({
-                type: props.type,
-                baseConsumption: props.baseConsumption,
+            ...xobj({
+                compClass: props.type,
+                basePowerConsumption: props.basePowerConsumption,
                 shortCircuitInRain: props.shortCircuitInRain,
             }),
-            nodes,
-        ].flat()
+            ...typeSpecificProps,
+        ]
     })
 }
 
 export interface CommonPowerProps {
-    baseConsumption: number;
+    basePowerConsumption: number;
     shortCircuitInRain?: boolean;
 }
 

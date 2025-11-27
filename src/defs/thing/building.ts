@@ -1,6 +1,7 @@
 import { Component, GraphicProps } from "@/components";
 import { ContextWithoutFunctions, withDefaults, x, xls, xobj, xstats } from "@/utils";
 import { DefNode, EffecterDefId, registerDef, SoundDefId, TerrainAffordanceDefId, ThingDefId, ThingDefProps, ThingStats } from "..";
+import { DesignationCategoryDefId, DrawStyleCategoryDefId, StuffCategoryDefId } from "@/defs/vanilla";
 import { omit } from "lodash-es";
 import { AltitudeLayer, TickerType } from "@/common";
 
@@ -30,7 +31,7 @@ export const defineBuilding = (context: ContextWithoutFunctions, props: Building
         Beauty: -3,
         Flammability: 0.8,
         SellPriceFactor: 0.5,
-        DeteriorationRate: 2.0,
+        DeteriorationRate: 0,
     } as const)
     //
 
@@ -38,11 +39,14 @@ export const defineBuilding = (context: ContextWithoutFunctions, props: Building
         name: props.name,
         label: props.label,
         contents: [
-            ...xobj(omit($props, ["name", "label", "settings"])),
+            ...xobj(omit($props, ["name", "label", "settings", "uiIconPathsStuff", "stuffCategories", "replaceTags"])),
+            x("stuffCategories", xls($props.stuffCategories)),
+            x("replaceTags", xls($props.replaceTags)),
             x("building", xobj({
                 ...$props.settings as Record<string, unknown>,
                 relatedBuildCommands: xls($props.settings.relatedBuildCommands),
             })),
+            x("uiIconPathsStuff", xls($props.uiIconPathsStuff?.map(e => xobj({ appearance: e.appearance, iconPath: e.iconPath })))),
             xstats($stats),
         ],
         components,
@@ -62,6 +66,23 @@ export interface BuildingProps extends ThingDefProps {
     canOverlapZones?: boolean;
     castEdgeShadows?: boolean;
 
+    // Core building/top-level placement & material
+    holdsRoof?: boolean;
+    passability?: "Impassable" | "PassThroughOnly" | "Standable";
+    fillPercent?: number;
+    coversFloor?: boolean;
+    costStuffCount?: number;
+    stuffCategories?: StuffCategoryDefId[];
+    useStuffTerrainAffordance?: boolean;
+    designationCategory?: DesignationCategoryDefId;
+    drawStyleCategory?: DrawStyleCategoryDefId;
+    uiIconPath?: string;
+    uiIconPathsStuff?: UiIconStuffEntry[];
+    uiOrder?: number;
+    replaceTags?: string[];
+    neverMultiSelect?: boolean;
+    noRightClickDraftAttack?: boolean;
+
     settings?: BuildingSettings;
 }
 
@@ -75,10 +96,23 @@ export interface BuildingSettings {
     isStuffableAirtight?: boolean,
     blueprintGraphicData?: GraphicProps,
     relatedBuildCommands?: ThingDefId[],
+
+    // Structural & interaction flags
+    claimable?: boolean,
+    deconstructible?: boolean,
+    supportsPlants?: boolean,
+    canPlaceOver?: boolean,
+    allowAutoroof?: boolean,
+    preventDeteriorationInside?: boolean,
 }
 
 export interface BuildingStats extends ThingStats {
     WorkToBuild?: number;
+}
+
+export interface UiIconStuffEntry {
+    appearance: string;
+    iconPath: string;
 }
 
 // <ThingDef>
