@@ -6,25 +6,25 @@ export * from "./category"
 export * from "./weapon"
 
 export type ThingDefProps = {
-    thingClass: string;
-    category: string;
-    drawerType: "None" | "RealtimeOnly" | "MapMeshOnly" | "MapMeshAndRealTime";
-    drawGUIOverlay: boolean;
-    description: string;
-    altitudeLayer: AltitudeLayer;
-    alwaysHaulable: boolean;
-    tickerType: TickerType;
-    useHitPoints: boolean;
-    pathCost: number;
-    selectable: boolean;
-    rotatable: boolean;
-    techLevel: TechLevel;
+    thingClass?: string;
+    category?: string;
+    drawerType?: "None" | "RealtimeOnly" | "MapMeshOnly" | "MapMeshAndRealTime";
+    drawGUIOverlay?: boolean;
+    description?: string;
+    altitudeLayer?: AltitudeLayer;
+    alwaysHaulable?: boolean;
+    tickerType?: TickerType;
+    useHitPoints?: boolean;
+    pathCost?: number;
+    selectable?: boolean;
+    rotatable?: boolean;
+    techLevel?: TechLevel;
     uiIconScale?: number;
     allowedArchonexusCount?: number;
 } & BaseDefProps
 
 export interface ThingStats extends Record<string, number | null | undefined> {
-    Mass: number;
+    Mass?: number;
     Beauty?: number;
     MarketValue?: number;
     MaxHitPoints?: number;
