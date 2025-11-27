@@ -1,6 +1,6 @@
 import { x, xobj } from "@/xml";
-import { CompComponent, SimpleComponent } from "..";
-import { DamageArmorCategoryDefId, DamageDefId } from "@/defs";
+import { SimpleComponent } from "..";
+import { DamageArmorCategoryDefId } from "@/defs";
 
 export const TrapComponent = (props: TrapProps) => new SimpleComponent("TrapComponent", {
     props: [
@@ -35,26 +35,4 @@ export interface TrapProps {
     // Spike trap specific
     meleeDamage?: number;
     springChance?: number;
-}
-
-// Explosive Component (for IED traps and destructible items)
-export const ExplosiveBuildingComponent = (props: ExplosiveBuildingProps) => new CompComponent("CompProperties_Explosive", {
-    isExtends: true,
-    props: xobj({
-        explosiveRadius: props.radius,
-        explosiveDamageType: props.damageType,
-        startWickHitPointsPercent: props.startWickHitPointsPercent,
-        wickTicks: props.wickTicks ? `${props.wickTicks[0]}~${props.wickTicks[1]}` : undefined,
-        startWickOnDamageTaken: props.startWickOnDamageTaken,
-        chanceNeverExplodeFromDamage: props.chanceNeverExplodeFromDamage,
-    }),
-});
-
-export interface ExplosiveBuildingProps {
-    radius: number;
-    damageType: DamageDefId;
-    startWickHitPointsPercent?: number;
-    wickTicks?: [number, number];
-    startWickOnDamageTaken?: DamageDefId;
-    chanceNeverExplodeFromDamage?: number;
 }
