@@ -1,7 +1,7 @@
-import { BaseDefProps, DamageArmorCategoryDefId, DefNode, registerDef } from ".";
+import { BaseDefProps, DamageArmorCategoryDefId, DamageDefId, DefNode, registerDef } from ".";
 import { ContextWithoutFunctions, toVec, x, xobj } from "@/utils";
 
-export const defineDamage = (context: ContextWithoutFunctions, props: DamageProps): DamageArmorCategoryDefId => {
+export const defineDamage = (context: ContextWithoutFunctions, props: DamageProps): DamageDefId => {
     const explosion = props.behavior?.explosion && typeof props.behavior.explosion === 'object' ? props.behavior.explosion : null;
 
     const nodes = xobj({
