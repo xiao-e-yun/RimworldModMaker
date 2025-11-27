@@ -38,10 +38,10 @@ export enum TechLevel {
     Animal = "Animal",
     Neolithic = "Neolithic",
     Medieval = "Medieval",
-    Midworld = "Midworld",
+    Industrial = "Industrial",
     Spacer = "Spacer",
     Ultra = "Ultra",
-    Transcendent = "Transcendent",
+    Archotech = "Archotech",
 }
 export namespace TechLevel {
     export const ORDER: TechLevel[] = [
@@ -49,10 +49,10 @@ export namespace TechLevel {
         TechLevel.Animal,
         TechLevel.Neolithic,
         TechLevel.Medieval,
-        TechLevel.Midworld,
+        TechLevel.Industrial,
         TechLevel.Spacer,
         TechLevel.Ultra,
-        TechLevel.Transcendent,
+        TechLevel.Archotech,
     ];
     export const eq = (a: TechLevel, b: TechLevel) => ORDER.indexOf(a) === ORDER.indexOf(b);
     export const gt = (a: TechLevel, b: TechLevel) => ORDER.indexOf(a) > ORDER.indexOf(b);
