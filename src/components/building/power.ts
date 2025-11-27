@@ -2,10 +2,6 @@ import { xls, xobj } from "@/xml";
 import { CompComponent } from "..";
 import { ResearchProjectDefId, SoundDefId } from "@/defs";
 
-export const FlickableComponent = () => new CompComponent("CompProperties_Flickable", {
-    isExtends: true,
-})
-
 export const BreakdownableComponent = () => new CompComponent("CompProperties_Breakdownable", {
     isExtends: true,
 })

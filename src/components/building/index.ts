@@ -1,3 +1,5 @@
+import { CompComponent } from ".."
+
 // Building Components
 export * from "./power"
 export * from "./storage"
@@ -6,3 +8,7 @@ export * from "./workbench"
 export * from "./door"
 export * from "./trap"
 export * from "./turret"
+
+export const FlickableComponent = () => new CompComponent("CompProperties_Flickable", {
+    isExtends: true,
+})
