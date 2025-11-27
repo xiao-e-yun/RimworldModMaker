@@ -39,7 +39,8 @@ export const defineBuilding = (context: ContextWithoutFunctions, props: Building
         name: props.name,
         label: props.label,
         contents: [
-            ...xobj(omit($props, ["name", "label", "settings", "uiIconPath", "uiIconPathsStuff", "stuffCategories", "replaceTags"])),
+            ...xobj(omit($props, ["name", "label", "settings", "size", "uiIconPath", "uiIconPathsStuff", "stuffCategories", "replaceTags"])),
+            x("size", $props.size ? `(${$props.size[0]}, ${$props.size[1]})` : undefined),
             x("uiIconPath", $props.uiIconPath),
             x("stuffCategories", xls($props.stuffCategories)),
             x("replaceTags", xls($props.replaceTags)),
@@ -57,6 +58,8 @@ export const defineBuilding = (context: ContextWithoutFunctions, props: Building
 export interface BuildingProps extends ThingDefProps {
     description: string;
 
+    /** Building size in cells [x, z]. Default is [1, 1]. */
+    size?: [number, number];
     soundImpactDefault?: SoundDefId;
     terrainAffordanceNeeded?: TerrainAffordanceDefId;
     leaveResourcesWhenKilled?: boolean;
