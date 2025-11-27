@@ -1,12 +1,17 @@
 import {CompComponent, SimpleComponent} from "..";
-import {x, xls} from "../../xml";
+import {x, xls, xobj} from "../../xml";
 
 export * from "./attack";
 export * from "./abilities";
 
 export const EquippableComponent = () => new CompComponent("CompEquippable");
 export const StyleableComponent = () => new CompComponent("CompProperties_Styleable", {isExtends: true});
-export const ForbiddableComponent = () => new CompComponent("CompProperties_Forbiddable", {isExtends: true});
+export const ForbiddableComponent = (props?: { allowNonPlayer?: boolean }) => new CompComponent("CompProperties_Forbiddable", {
+  isExtends: true,
+  props: xobj({
+    allowNonPlayer: props?.allowNonPlayer,
+  })
+});
 export const BiocodableComponent = () => new CompComponent("CompProperties_Biocodable", {isExtends: true});
 
 export const GenericWeaponComponent = (props: GenericWeaponProps = {}) => new SimpleComponent("GenericWeapon", {
