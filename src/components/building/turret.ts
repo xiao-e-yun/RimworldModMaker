@@ -1,18 +1,19 @@
-import { x, xobj } from "@/xml";
+import { x, xls, xobj } from "@/xml";
 import { SimpleComponent } from "..";
 import { ThingDefId } from "@/defs";
+import { toVec } from "@/utils";
 
 export const TurretComponent = (props: TurretProps) => new SimpleComponent("TurretComponent", {
-    required: props.requiresPower ? ["CompProperties_Power"] : [],
+    required: ["CompProperties_Stunnable"],
     props: [
         x("thingClass", "Building_TurretGun"),
         x("drawerType", "MapMeshAndRealTime"),
         x("tickerType", "Normal"),
         x("passability", "PassThroughOnly"),
-        x("placeWorkers", [
-            x("li", "PlaceWorker_TurretTop"),
-            x("li", "PlaceWorker_ShowTurretRadius"),
-        ]),
+        x("placeWorkers", xls([
+            "PlaceWorker_TurretTop",
+            "PlaceWorker_ShowTurretRadius",
+        ])),
     ],
     setup: (def) => {
         const building = def.getOrCreate("building");
@@ -21,19 +22,10 @@ export const TurretComponent = (props: TurretProps) => new SimpleComponent("Turr
             turretBurstCooldownTime: props.burstCooldownTime,
             turretBurstWarmupTime: props.burstWarmupTime,
             turretTopDrawSize: props.topDrawSize,
-            turretTopOffset: props.topOffset ? `(${props.topOffset.join(",")})` : undefined,
+            turretTopOffset: props.topOffset && toVec(props.topOffset),
             combatPower: props.combatPower,
             ai_combatDangerous: props.aiCombatDangerous,
         }));
-
-        // Add stunnable comp for EMP
-        const comps = def.getOrCreate("comps");
-        comps.contents!.push(x("li", [], { Class: "CompProperties_Stunnable" }));
-
-        // Add mannable if required
-        if (props.requiresMannable) {
-            comps.contents!.push(x("li", [], { Class: "CompProperties_Mannable" }));
-        }
     }
 });
 
@@ -45,6 +37,4 @@ export interface TurretProps {
     topOffset?: [number, number];
     combatPower?: number;
     aiCombatDangerous?: boolean;
-    requiresPower?: boolean;
-    requiresMannable?: boolean;
 }
