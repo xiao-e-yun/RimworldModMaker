@@ -3,8 +3,10 @@ import { defineDamage, defineDamageArmorCategory } from "./damage";
 import { defineResearchProject, defineResearchTab } from "./research";
 import { defineStat } from "./stat";
 import { defineTerrainAffordance } from "./terrainAffordance";
-import { defineBuilding, defineWeapon } from "./thing";
+import { defineBuilding, defineWeapon, defineApparel } from "./thing";
 import { defineThingCategory } from "./thing/category";
+import { defineRecipe } from "./recipe";
+import { defineHediff } from "./hediff";
 import { ContextWithoutFunctions, x, XmlAttrs, XmlChild, XmlNode } from "@/utils"
 import { Component, registerComponents } from "@/components";
 import { ModDependency } from "@/common/mod";
@@ -15,9 +17,24 @@ export * from "./terrainAffordance"
 export * from "./vanilla"
 export * from "./damage"
 export * from "./stat"
-export * from "./vanilla"
+export * from "./recipe"
+export * from "./hediff"
 
-export const DEFS_CONTEXT_BINDINGS = { registerDef, defineResearchTab, defineResearchProject, defineTerrainAffordance, defineDamage, defineBuilding, defineDamageArmorCategory, defineWeapon, defineStat, defineThingCategory } as const;
+export const DEFS_CONTEXT_BINDINGS = { 
+    registerDef, 
+    defineResearchTab, 
+    defineResearchProject, 
+    defineTerrainAffordance, 
+    defineDamage, 
+    defineBuilding, 
+    defineDamageArmorCategory, 
+    defineWeapon, 
+    defineApparel,
+    defineStat, 
+    defineThingCategory,
+    defineRecipe,
+    defineHediff,
+} as const;
 
 export class DefNode extends XmlNode {
     // basic fields
