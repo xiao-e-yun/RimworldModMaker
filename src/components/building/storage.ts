@@ -1,14 +1,14 @@
-import { x, xls, xobj } from "@/xml";
+import { xls, xobj } from "@/xml";
 import { SimpleComponent } from "..";
 import { ThingCategoryDefId, ThingDefId } from "@/defs";
 
 export const StorageComponent = (props: StorageProps) => new SimpleComponent("StorageComponent", {
-    props: [
-        x("thingClass", "Building_Storage"),
-        x("surfaceType", "Item"),
-        x("canOverlapZones", props.canOverlapZones),
-        x("inspectorTabs", [x("li", "ITab_Storage")]),
-    ],
+    props: xobj({
+        thingClass: "Building_Storage",
+        surfaceType: "Item",
+        inspectorTabs: xls(["ITab_Storage"]),
+        canOverlapZones: props.canOverlapZones,
+    }),
     setup: (def) => {
         const building = def.getOrCreate("building");
         building.mergeChildren(...xobj({
