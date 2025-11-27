@@ -5,6 +5,8 @@ import { ThingCategoryDefId, ThingDefId } from "@/defs";
 export const StorageComponent = (props: StorageProps) => new SimpleComponent("StorageComponent", {
     props: [
         x("thingClass", "Building_Storage"),
+        x("surfaceType", "Item"),
+        x("canOverlapZones", props.canOverlapZones),
         x("inspectorTabs", [x("li", "ITab_Storage")]),
     ],
     setup: (def) => {
@@ -14,6 +16,7 @@ export const StorageComponent = (props: StorageProps) => new SimpleComponent("St
             ignoreStoredThingsBeauty: props.ignoreStoredThingsBeauty,
             maxItemsInCell: props.maxItemsInCell,
             storageGroupTag: props.storageGroupTag,
+            blueprintClass: "Blueprint_Storage",
             fixedStorageSettings: props.fixedStorageSettings ? storageSettingsToXml(props.fixedStorageSettings) : undefined,
             defaultStorageSettings: props.defaultStorageSettings ? storageSettingsToXml(props.defaultStorageSettings) : undefined,
         }));
@@ -34,6 +37,7 @@ function storageSettingsToXml(settings: StorageSettings) {
 }
 
 export interface StorageProps {
+    canOverlapZones?: boolean;
     preventDeteriorationOnTop?: boolean;
     ignoreStoredThingsBeauty?: boolean;
     maxItemsInCell?: number;

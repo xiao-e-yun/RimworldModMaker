@@ -39,7 +39,8 @@ export const defineBuilding = (context: ContextWithoutFunctions, props: Building
         name: props.name,
         label: props.label,
         contents: [
-            ...xobj(omit($props, ["name", "label", "settings", "uiIconPathsStuff", "stuffCategories", "replaceTags"])),
+            ...xobj(omit($props, ["name", "label", "settings", "uiIconPath", "uiIconPathsStuff", "stuffCategories", "replaceTags"])),
+            x("uiIconPath", $props.uiIconPath),
             x("stuffCategories", xls($props.stuffCategories)),
             x("replaceTags", xls($props.replaceTags)),
             x("building", xobj({
