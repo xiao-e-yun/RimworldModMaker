@@ -1,6 +1,7 @@
 import { Component } from ".."
 import { XmlNode } from "@/utils"
 
+export * from "./explosive"
 export * from "./graphic"
 export * from "./quality"
 export * from "./art"
