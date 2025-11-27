@@ -1,7 +1,8 @@
 import { BaseDefProps, DefNode, registerDef } from ".";
 import type { HediffDefId } from "./vanilla";
 import { Component } from "@/components";
-import { ContextWithoutFunctions, x, xls, xobj } from "@/utils";
+import { ContextWithoutFunctions } from "@/utils";
+import { x, xls, xobj } from "@/xml";
 
 export const defineHediff = (context: ContextWithoutFunctions, props: HediffProps, components: Component[] = []): HediffDefId => {
     const nodes = xobj({
@@ -29,98 +30,54 @@ export const defineHediff = (context: ContextWithoutFunctions, props: HediffProp
     });
 
     // Stages
-    if (props.stages) {
-        nodes.push(x("stages", props.stages.map(stage => {
-            const stageNodes: typeof nodes = [];
-
-            stageNodes.push(...xobj({
-                label: stage.label,
-                minSeverity: stage.minSeverity,
-                lifeThreatening: stage.lifeThreatening,
-                painOffset: stage.painOffset,
-                painFactor: stage.painFactor,
-                partEfficiencyOffset: stage.partEfficiencyOffset,
-                forgetMemoryThoughtMtbDays: stage.forgetMemoryThoughtMtbDays,
-                purgeMtbDays: stage.purgeMtbDays,
-                deathMtbDays: stage.deathMtbDays,
-                vomitMtbDays: stage.vomitMtbDays,
-                becomeVisible: stage.becomeVisible,
-            }));
-
-            // Capacity mods
-            if (stage.capMods) {
-                stageNodes.push(x("capMods", stage.capMods.map(cap =>
-                    x("li", xobj({
-                        capacity: cap.capacity,
-                        offset: cap.offset,
-                        setMax: cap.setMax,
-                        postFactor: cap.postFactor,
-                    }))
-                )));
-            }
-
-            // Stat offsets
-            if (stage.statOffsets) {
-                stageNodes.push(x("statOffsets", xobj(stage.statOffsets)));
-            }
-
-            // Stat factors
-            if (stage.statFactors) {
-                stageNodes.push(x("statFactors", xobj(stage.statFactors)));
-            }
-
-            // Mental state givers
-            if (stage.mentalStateGivers) {
-                stageNodes.push(x("mentalStateGivers", stage.mentalStateGivers.map(giver =>
-                    x("li", xobj({
-                        mentalState: giver.mentalState,
-                        mtbDays: giver.mtbDays,
-                    }))
-                )));
-            }
-
-            // Hediff givers
-            if (stage.hediffGivers) {
-                stageNodes.push(x("hediffGivers", stage.hediffGivers.map(giver => {
-                    const giverNodes = [
-                        x("hediff", giver.hediff),
-                        x("mtbDays", giver.mtbDays),
-                    ];
-                    if (giver.partsToAffect) {
-                        giverNodes.push(x("partsToAffect", xls(giver.partsToAffect)));
-                    }
-                    return x("li", giverNodes);
-                })));
-            }
-
-            return x("li", stageNodes);
-        })));
-    }
+    nodes.push(x("stages", xls(props.stages?.map(stage => xobj({
+        label: stage.label,
+        minSeverity: stage.minSeverity,
+        lifeThreatening: stage.lifeThreatening,
+        painOffset: stage.painOffset,
+        painFactor: stage.painFactor,
+        partEfficiencyOffset: stage.partEfficiencyOffset,
+        forgetMemoryThoughtMtbDays: stage.forgetMemoryThoughtMtbDays,
+        purgeMtbDays: stage.purgeMtbDays,
+        deathMtbDays: stage.deathMtbDays,
+        vomitMtbDays: stage.vomitMtbDays,
+        becomeVisible: stage.becomeVisible,
+        capMods: xls(stage.capMods?.map(cap => xobj({
+            capacity: cap.capacity,
+            offset: cap.offset,
+            setMax: cap.setMax,
+            postFactor: cap.postFactor,
+        }))),
+        statOffsets: xobj(stage.statOffsets),
+        statFactors: xobj(stage.statFactors),
+        mentalStateGivers: xls(stage.mentalStateGivers?.map(giver => xobj({
+            mentalState: giver.mentalState,
+            mtbDays: giver.mtbDays,
+        }))),
+        hediffGivers: xls(stage.hediffGivers?.map(giver => xobj({
+            hediff: giver.hediff,
+            mtbDays: giver.mtbDays,
+            partsToAffect: xls(giver.partsToAffect),
+        }))),
+    })
+    ))));
 
     // Injury props
-    if (props.injuryProps) {
-        const injuryNodes: typeof nodes = [];
-        injuryNodes.push(...xobj({
-            painPerSeverity: props.injuryProps.painPerSeverity,
-            averagePainPerSeverityPermanent: props.injuryProps.averagePainPerSeverityPermanent,
-            bleedRate: props.injuryProps.bleedRate,
-            canMerge: props.injuryProps.canMerge,
-            destroyedLabel: props.injuryProps.destroyedLabel,
-            destroyedOutLabel: props.injuryProps.destroyedOutLabel,
-        }));
-        nodes.push(x("injuryProps", injuryNodes));
-    }
+    nodes.push(x("injuryProps", xobj({
+        painPerSeverity: props.injuryProps?.painPerSeverity,
+        averagePainPerSeverityPermanent: props.injuryProps?.averagePainPerSeverityPermanent,
+        bleedRate: props.injuryProps?.bleedRate,
+        canMerge: props.injuryProps?.canMerge,
+        destroyedLabel: props.injuryProps?.destroyedLabel,
+        destroyedOutLabel: props.injuryProps?.destroyedOutLabel,
+    })));
 
     // Adding props
-    if (props.addedPartProps) {
-        const addedPartNodes: typeof nodes = [];
-        addedPartNodes.push(...xobj({
-            solid: props.addedPartProps.solid,
-            partEfficiency: props.addedPartProps.partEfficiency,
-            betterThanNatural: props.addedPartProps.betterThanNatural,
-        }));
-        nodes.push(x("addedPartProps", addedPartNodes));
-    }
+    nodes.push(x("addedPartProps", xobj({
+        solid: props.addedPartProps?.solid,
+        partEfficiency: props.addedPartProps?.partEfficiency,
+        betterThanNatural: props.addedPartProps?.betterThanNatural,
+    })));
 
     return registerDef(context, new DefNode("HediffDef", {
         name: props.name,

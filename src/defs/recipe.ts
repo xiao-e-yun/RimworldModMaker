@@ -1,6 +1,7 @@
 import { BaseDefProps, DefNode, registerDef, ResearchProjectDefId, ThingDefId } from ".";
-import type { RecipeDefId } from "./vanilla";
-import { ContextWithoutFunctions, x, xls, xobj } from "@/utils";
+import type { RecipeDefId, SkillDefId, ThingCategoryDefId, StatDefId, EffecterDefId, SoundDefId } from "./vanilla";
+import { ContextWithoutFunctions } from "@/utils";
+import { x, xls, xobj } from "@/xml";
 
 export const defineRecipe = (context: ContextWithoutFunctions, props: RecipeProps): RecipeDefId => {
     const nodes = xobj({
@@ -14,128 +15,63 @@ export const defineRecipe = (context: ContextWithoutFunctions, props: RecipeProp
         soundWorking: props.soundWorking,
         targetCountAdjustment: props.targetCountAdjustment,
         allowMixingIngredients: props.allowMixingIngredients,
+        recipeUsers: xls(props.recipeUsers),
     });
 
-    // Recipe users (workbenches that can use this recipe)
-    if (props.recipeUsers) {
-        nodes.push(x("recipeUsers", xls(props.recipeUsers)));
-    }
-
     // Ingredients
-    if (props.ingredients) {
-        nodes.push(x("ingredients", props.ingredients.map(ingredient => {
-            const ingredientNodes: typeof nodes = [];
-            
-            // Filter
-            if (ingredient.filter) {
-                const filterNodes: typeof nodes = [];
-                if (ingredient.filter.thingDefs) {
-                    filterNodes.push(x("thingDefs", xls(ingredient.filter.thingDefs)));
-                }
-                if (ingredient.filter.categories) {
-                    filterNodes.push(x("categories", xls(ingredient.filter.categories)));
-                }
-                if (ingredient.filter.allowedDefs) {
-                    filterNodes.push(x("allowedDefs", xls(ingredient.filter.allowedDefs)));
-                }
-                if (ingredient.filter.disallowedThingDefs) {
-                    filterNodes.push(x("disallowedThingDefs", xls(ingredient.filter.disallowedThingDefs)));
-                }
-                if (ingredient.filter.disallowedCategories) {
-                    filterNodes.push(x("disallowedCategories", xls(ingredient.filter.disallowedCategories)));
-                }
-                ingredientNodes.push(x("filter", filterNodes));
-            }
-            
-            ingredientNodes.push(...xobj({
-                count: ingredient.count,
-            }));
-            
-            return x("li", ingredientNodes);
-        })));
-    }
+    nodes.push(x("ingredients", xls(props.ingredients?.map(ingredient => {
+        const ingredientNodes = xobj({
+            count: ingredient.count,
+            filter: xobj({
+                thingDefs: xls(ingredient.filter?.thingDefs),
+                categories: xls(ingredient.filter?.categories),
+                allowedDefs: xls(ingredient.filter?.allowedDefs),
+                disallowedThingDefs: xls(ingredient.filter?.disallowedThingDefs),
+                disallowedCategories: xls(ingredient.filter?.disallowedCategories),
+            }),
+        });
+        return ingredientNodes;
+    }))));
 
     // Products
-    if (props.products) {
-        nodes.push(x("products", xobj(props.products)));
-    }
+    nodes.push(x("products", xobj(props.products)));
 
     // Special products
-    if (props.specialProducts) {
-        nodes.push(x("specialProducts", xls(props.specialProducts)));
-    }
+    nodes.push(x("specialProducts", xls(props.specialProducts)));
 
     // Fixed ingredient filter
-    if (props.fixedIngredientFilter) {
-        const filterNodes: typeof nodes = [];
-        if (props.fixedIngredientFilter.thingDefs) {
-            filterNodes.push(x("thingDefs", xls(props.fixedIngredientFilter.thingDefs)));
-        }
-        if (props.fixedIngredientFilter.categories) {
-            filterNodes.push(x("categories", xls(props.fixedIngredientFilter.categories)));
-        }
-        if (props.fixedIngredientFilter.specialFiltersToDisallow) {
-            filterNodes.push(x("specialFiltersToDisallow", xls(props.fixedIngredientFilter.specialFiltersToDisallow)));
-        }
-        if (props.fixedIngredientFilter.specialFiltersToAllow) {
-            filterNodes.push(x("specialFiltersToAllow", xls(props.fixedIngredientFilter.specialFiltersToAllow)));
-        }
-        nodes.push(x("fixedIngredientFilter", filterNodes));
-    }
+    nodes.push(x("fixedIngredientFilter", xobj({
+        thingDefs: xls(props.fixedIngredientFilter?.thingDefs),
+        categories: xls(props.fixedIngredientFilter?.categories),
+        specialFiltersToDisallow: xls(props.fixedIngredientFilter?.specialFiltersToDisallow),
+        specialFiltersToAllow: xls(props.fixedIngredientFilter?.specialFiltersToAllow),
+    })));
 
     // Default ingredient filter
-    if (props.defaultIngredientFilter) {
-        const filterNodes: typeof nodes = [];
-        if (props.defaultIngredientFilter.thingDefs) {
-            filterNodes.push(x("thingDefs", xls(props.defaultIngredientFilter.thingDefs)));
-        }
-        if (props.defaultIngredientFilter.categories) {
-            filterNodes.push(x("categories", xls(props.defaultIngredientFilter.categories)));
-        }
-        if (props.defaultIngredientFilter.disallowedThingDefs) {
-            filterNodes.push(x("disallowedThingDefs", xls(props.defaultIngredientFilter.disallowedThingDefs)));
-        }
-        if (props.defaultIngredientFilter.disallowedCategories) {
-            filterNodes.push(x("disallowedCategories", xls(props.defaultIngredientFilter.disallowedCategories)));
-        }
-        nodes.push(x("defaultIngredientFilter", filterNodes));
-    }
+    nodes.push(x("defaultIngredientFilter", xobj({
+        thingDefs: xls(props.defaultIngredientFilter?.thingDefs),
+        categories: xls(props.defaultIngredientFilter?.categories),
+        disallowedThingDefs: xls(props.defaultIngredientFilter?.disallowedThingDefs),
+        disallowedCategories: xls(props.defaultIngredientFilter?.disallowedCategories),
+    })));
 
     // Force hidden special filters
-    if (props.forceHiddenSpecialFilters) {
-        nodes.push(x("forceHiddenSpecialFilters", xls(props.forceHiddenSpecialFilters)));
-    }
+    nodes.push(x("forceHiddenSpecialFilters", xls(props.forceHiddenSpecialFilters)));
 
     // Research requirements
-    if (props.researchPrerequisite) {
-        nodes.push(x("researchPrerequisite", props.researchPrerequisite));
-    }
-    if (props.researchPrerequisites) {
-        nodes.push(x("researchPrerequisites", xls(props.researchPrerequisites)));
-    }
+    nodes.push(x("researchPrerequisites", xls(props.researchPrerequisites)));
 
     // Skill requirements
-    if (props.skillRequirements) {
-        nodes.push(x("skillRequirements", props.skillRequirements.map(req =>
-            x("li", [
-                x("skill", req.skill),
-                x("minLevel", req.minLevel),
-            ])
-        )));
-    }
+    nodes.push(x("skillRequirements", xls(props.skillRequirements?.map(req => 
+        xobj({ [req.skill.id]: req.minLevel.toString() })
+    ))));
 
     // Unfinished thing
-    if (props.unfinishedThingDef) {
-        nodes.push(x("unfinishedThingDef", props.unfinishedThingDef));
-    }
+    nodes.push(x("unfinishedThingDef", props.unfinishedThingDef));
 
     // Worker classes
-    if (props.workerClass) {
-        nodes.push(x("workerClass", props.workerClass));
-    }
-    if (props.workerCounterClass) {
-        nodes.push(x("workerCounterClass", props.workerCounterClass));
-    }
+    nodes.push(x("workerClass", props.workerClass));
+    nodes.push(x("workerCounterClass", props.workerCounterClass));
 
     return registerDef(context, new DefNode("RecipeDef", {
         name: props.name,
@@ -195,7 +131,7 @@ export interface RecipeProps extends BaseDefProps {
      * @example "SmeltingSpeed"
      * @example "CookSpeed"
      */
-    workSpeedStat?: string;
+    workSpeedStat?: StatDefId;
 
     /**
      * Skill used for this recipe (affects quality and speed)
@@ -203,7 +139,7 @@ export interface RecipeProps extends BaseDefProps {
      * @example "Cooking"
      * @example "Construction"
      */
-    workSkill?: string;
+    workSkill?: SkillDefId;
 
     /**
      * How much skill experience is gained from this recipe
@@ -220,7 +156,7 @@ export interface RecipeProps extends BaseDefProps {
      * @example "Tailor"
      * @example "Smith"
      */
-    effectWorking?: string;
+    effectWorking?: EffecterDefId;
 
     /**
      * Sound played while working
@@ -228,7 +164,7 @@ export interface RecipeProps extends BaseDefProps {
      * @example "Recipe_Tailor"
      * @example "Recipe_Smelt"
      */
-    soundWorking?: string;
+    soundWorking?: SoundDefId;
 
     /**
      * Adjusts target count for "do until X" bills
@@ -288,11 +224,6 @@ export interface RecipeProps extends BaseDefProps {
     forceHiddenSpecialFilters?: string[];
 
     /**
-     * Research required to unlock this recipe
-     */
-    researchPrerequisite?: ResearchProjectDefId;
-
-    /**
      * Multiple research prerequisites (all required)
      */
     researchPrerequisites?: ResearchProjectDefId[];
@@ -349,7 +280,7 @@ export interface RecipeFilter {
     /**
      * ThingCategories allowed
      */
-    categories?: string[];
+    categories?: ThingCategoryDefId[];
 
     /**
      * Explicitly allowed defs (whitelist)
@@ -388,7 +319,7 @@ export interface SkillRequirement {
      * @example "Cooking"
      * @example "Medicine"
      */
-    skill: string;
+    skill: SkillDefId;
 
     /**
      * Minimum skill level required
