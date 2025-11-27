@@ -62,9 +62,9 @@ export const defineRecipe = (context: ContextWithoutFunctions, props: RecipeProp
     nodes.push(x("researchPrerequisites", xls(props.researchPrerequisites)));
 
     // Skill requirements
-    nodes.push(x("skillRequirements", xls(props.skillRequirements?.map(req => 
-        xobj({ [req.skill.id]: req.minLevel.toString() })
-    ))));
+    nodes.push(x("skillRequirements", props.skillRequirements?.map(req => 
+        x(req.skill.id, req.minLevel.toString())
+    )));
 
     // Unfinished thing
     nodes.push(x("unfinishedThingDef", props.unfinishedThingDef));
