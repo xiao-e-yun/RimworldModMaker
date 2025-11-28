@@ -1,32 +1,41 @@
 import { Component, GraphicProps } from "@/components";
-import { ContextWithoutFunctions, withDefaults, x, xls, xobj, xstats } from "@/utils";
+import { ContextWithoutFunctions, toVec, withDefaults, x, xls, xobj, xstats } from "@/utils";
 import { DefNode, EffecterDefId, registerDef, SoundDefId, TerrainAffordanceDefId, ThingDefId, ThingDefProps, ThingStats } from "..";
 import { DesignationCategoryDefId, DrawStyleCategoryDefId } from "@/defs/vanilla";
-import { omit } from "lodash-es";
-import { AltitudeLayer, TickerType } from "@/common";
+import { AltitudeLayer, DrawerType, TickerType } from "@/common";
+import { isString } from "lodash-es";
 
 
 /**
  * Defines a building ThingDef.
  * 
  */
-export const defineBuilding = (context: ContextWithoutFunctions, props: BuildingProps, stats: BuildingStats, components: Component[]) => {
+export const defineBuilding = (context: ContextWithoutFunctions, options: BuildingProps, components: Component[]) => {
 
-    const $props = withDefaults(props, {
-        description: props.label || "No description provided.",
+    const {
+        name,
+        label,
+        building,
+        size,
+        uiIconPaths,
+        replaceTags,
+        stats: $stats,
+        ...props
+    } = withDefaults(options, {
+        description: options.label || "No description provided.",
         thingClass: "Building",
         category: "Building",
-        drawerType: "MapMeshOnly",
+        drawerType: DrawerType.MapMeshOnly,
         altitudeLayer: AltitudeLayer.Building,
         tickerType: TickerType.Never,
         useHitPoints: true,
         pathCost: 14,
         selectable: true,
         rotatable: false,
-        settings: {},
+        building: {},
     } as const)
 
-    const $stats = withDefaults(stats, {
+    const stats = withDefaults($stats, {
         Mass: 3.0,
         Beauty: -3,
         Flammability: 0.8,
@@ -36,19 +45,25 @@ export const defineBuilding = (context: ContextWithoutFunctions, props: Building
     //
 
     return registerDef(context, new DefNode("ThingDef", {
-        name: props.name,
-        label: props.label,
+        name: options.name,
+        label: options.label,
         contents: [
-            ...xobj(omit($props, ["name", "label", "settings", "size", "uiIconPath", "uiIconPathsStuff", "replaceTags"])),
-            x("size", $props.size ? `(${$props.size[0]}, ${$props.size[1]})` : undefined),
-            x("uiIconPath", $props.uiIconPath),
-            x("replaceTags", xls($props.replaceTags)),
+            ...xobj(props),
+            x("size", toVec(size)),
+            x("replaceTags", xls(replaceTags)),
             x("building", xobj({
-                ...$props.settings as Record<string, unknown>,
-                relatedBuildCommands: xls($props.settings.relatedBuildCommands),
+                ...building as Record<string, unknown>,
+                relatedBuildCommands: xls(building.relatedBuildCommands),
             })),
-            x("uiIconPathsStuff", xls($props.uiIconPathsStuff?.map(e => xobj({ appearance: e.appearance, iconPath: e.iconPath })))),
-            xstats($stats),
+            ...[
+                isString(uiIconPaths) ?
+                    x("uiIconPath", uiIconPaths) :
+                    x("uiIconPathsStuff", xls(uiIconPaths?.map(e => xobj({
+                        appearance: e.appearance,
+                        iconPath: e.iconPath
+                    }))))
+            ],
+            xstats(stats),
         ],
         components,
     }));
@@ -77,14 +92,14 @@ export interface BuildingProps extends ThingDefProps {
     useStuffTerrainAffordance?: boolean;
     designationCategory?: DesignationCategoryDefId;
     drawStyleCategory?: DrawStyleCategoryDefId;
-    uiIconPath?: string;
-    uiIconPathsStuff?: UiIconStuffEntry[];
+    uiIconPaths?: string | UiIconStuffEntry[];
     uiOrder?: number;
     replaceTags?: string[];
     neverMultiSelect?: boolean;
     noRightClickDraftAttack?: boolean;
 
-    settings?: BuildingSettings;
+    building?: BuildingSettings;
+    stats?: BuildingStats;
 }
 
 export interface BuildingSettings {
@@ -115,103 +130,3 @@ export interface UiIconStuffEntry {
     appearance: string;
     iconPath: string;
 }
-
-// <ThingDef>
-//   <defName>Wall</defName>
-//   <altitudeLayer>Building</altitudeLayer>
-//   <blockLight>true</blockLight>
-//   <blockWind>true</blockWind>
-//   <building>
-//     <paintable>true</paintable>
-//     <isInert>true</isInert>
-//     <isWall>true</isWall>
-//     <isPlaceOverableWall>true</isPlaceOverableWall>
-//     <ai_chillDestination>false</ai_chillDestination>
-//     <supportsWallAttachments>true</supportsWallAttachments>
-//     <isStuffableAirtight>true</isStuffableAirtight>
-//     <blueprintGraphicData>
-//       <texPath>Things/Building/Linked/Wall_Blueprint_Atlas</texPath>
-//     </blueprintGraphicData>
-//     <relatedBuildCommands>
-//       <li>Door</li>
-//       <li>Autodoor</li>
-//       <li>OrnateDoor</li>
-//       <li MayRequire="Ludeon.RimWorld.Anomaly">SecurityDoor</li>
-//       <li MayRequire="Ludeon.RimWorld.Odyssey">VacBarrier</li>
-//       <li>Cooler</li>
-//       <li>Vent</li>
-//     </relatedBuildCommands>
-//   </building>
-//   <canOverlapZones>false</canOverlapZones>
-//   <castEdgeShadows>true</castEdgeShadows>
-//   <category>Building</category>
-//   <costStuffCount>5</costStuffCount>
-//   <coversFloor>true</coversFloor>
-//   <description>An impassable wall. Capable of holding up a roof.</description>
-//   <designationCategory>Structure</designationCategory>
-//   <drawStyleCategory>Walls</drawStyleCategory>
-//   <drawerType>MapMeshOnly</drawerType>
-//   <fertility>0</fertility>
-//   <fillPercent>1</fillPercent>
-//   <filthLeaving>Filth_RubbleBuilding</filthLeaving>
-//   <graphicData>
-//     <texPath>Things/Building/Linked/Wall</texPath>
-//     <graphicClass>Graphic_Appearances</graphicClass>
-//     <linkType>CornerFiller</linkType>
-//     <linkFlags>
-//       <li>Wall</li>
-//       <li>Rock</li>
-//     </linkFlags>
-//     <damageData>
-//       <cornerTL>Damage/Corner</cornerTL>
-//       <cornerTR>Damage/Corner</cornerTR>
-//       <cornerBL>Damage/Corner</cornerBL>
-//       <cornerBR>Damage/Corner</cornerBR>
-//       <edgeTop>Damage/Edge</edgeTop>
-//       <edgeBot>Damage/Edge</edgeBot>
-//       <edgeLeft>Damage/Edge</edgeLeft>
-//       <edgeRight>Damage/Edge</edgeRight>
-//     </damageData>
-//   </graphicData>
-//   <holdsRoof>true</holdsRoof>
-//   <label>wall</label>
-//   <leaveResourcesWhenKilled>false</leaveResourcesWhenKilled>
-//   <neverMultiSelect>true</neverMultiSelect>
-//   <noRightClickDraftAttack>true</noRightClickDraftAttack>
-//   <passability>Impassable</passability>
-//   <repairEffect>Repair</repairEffect>
-//   <replaceTags>
-//     <li>Wall</li>
-//   </replaceTags>
-//   <rotatable>false</rotatable>
-//   <selectable>true</selectable>
-//   <soundImpactDefault>BulletImpact_Metal</soundImpactDefault>
-//   <statBases>
-//     <MaxHitPoints>300</MaxHitPoints>
-//     <WorkToBuild>135</WorkToBuild>
-//     <Flammability>1.0</Flammability>
-//     <MeditationFocusStrength>0.22</MeditationFocusStrength>
-//   </statBases>
-//   <staticSunShadowHeight>1.0</staticSunShadowHeight>
-//   <stuffCategories>
-//     <li>Metallic</li>
-//     <li>Woody</li>
-//     <li>Stony</li>
-//   </stuffCategories>
-//   <terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
-//   <thingClass>Building</thingClass>
-//   <tickerType>Never</tickerType>
-//   <uiIconPath>Things/Building/Linked/WallSmooth_MenuIcon</uiIconPath>
-//   <uiIconPathsStuff>
-//     <li>
-//       <appearance>Planks</appearance>
-//       <iconPath>Things/Building/Linked/WallPlanks_MenuIcon</iconPath>
-//     </li>
-//     <li>
-//       <appearance>Bricks</appearance>
-//       <iconPath>Things/Building/Linked/WallBricks_MenuIcon</iconPath>
-//     </li>
-//   </uiIconPathsStuff>
-//   <uiOrder>2000</uiOrder>
-//   <useStuffTerrainAffordance>true</useStuffTerrainAffordance>
-// </ThingDef>

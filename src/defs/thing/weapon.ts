@@ -1,8 +1,7 @@
 import { Component, EquippableComponent, ForbiddableComponent, StyleableComponent } from "@/components";
 import { ContextWithoutFunctions, withDefaults, xobj, xstats } from "@/utils";
-import { BaseDefProps, DefNode, registerDef, ThingDefProps, ThingStats } from "..";
-import { AltitudeLayer, TechLevel, TickerType } from "@/common";
-import { omit } from "lodash-es";
+import { BaseDefProps, DefNode, registerDef, ThingDefProps } from "..";
+import { AltitudeLayer, DrawerType, TechLevel, TickerType } from "@/common";
 
 /**
  * Defines a weapon ThingDef.
@@ -36,12 +35,15 @@ import { omit } from "lodash-es";
  * - ForbiddableComponent
  * - StyleableComponent
  */
-export const defineWeapon = (context: ContextWithoutFunctions, props: Partial<WeaponProps> & BaseDefProps, stats: ThingStats, components: Component[]) => {
-    const $props = withDefaults(props, {
-        description: props.label || "No description provided.",
+export const defineWeapon = (context: ContextWithoutFunctions, options: Partial<WeaponProps> & BaseDefProps, components: Component[]) => {
+    const {
+        stats: $stats,
+        ...props
+    } = withDefaults(options, {
+        description: options.label || "No description provided.",
         thingClass: "ThingWithComps",
         category: "Item",
-        drawerType: "MapMeshOnly",
+        drawerType: DrawerType.MapMeshOnly,
         drawGUIOverlay: true,
         altitudeLayer: AltitudeLayer.Item,
         alwaysHaulable: true,
@@ -56,7 +58,7 @@ export const defineWeapon = (context: ContextWithoutFunctions, props: Partial<We
         equipmentType: "Primary",
     } as const)
 
-    const $stats = withDefaults(stats, {
+    const stats = withDefaults($stats, {
         Mass: 3.0,
         Beauty: -3,
         Flammability: 0.8,
@@ -65,11 +67,11 @@ export const defineWeapon = (context: ContextWithoutFunctions, props: Partial<We
     } as const)
 
     return registerDef(context, new DefNode("ThingDef", {
-        name: props.name,
-        label: props.label,
+        name: options.name,
+        label: options.label,
         contents: [
-            ...xobj(omit($props, ["name", "label"])),
-            xstats($stats),
+            ...xobj(props),
+            xstats(stats),
         ],
         components: [
             ForbiddableComponent(),

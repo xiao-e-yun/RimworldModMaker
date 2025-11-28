@@ -1,4 +1,4 @@
-import { AltitudeLayer, TechLevel, TickerType } from "@/common";
+import { AltitudeLayer, DrawerType, TechLevel, TickerType } from "@/common";
 import { BaseDefProps } from "..";
 
 export * from "./building"
@@ -8,7 +8,7 @@ export * from "./weapon"
 export type ThingDefProps = {
     thingClass?: string;
     category?: string;
-    drawerType?: "None" | "RealtimeOnly" | "MapMeshOnly" | "MapMeshAndRealTime";
+    drawerType?: DrawerType;
     drawGUIOverlay?: boolean;
     description?: string;
     altitudeLayer?: AltitudeLayer;
@@ -21,6 +21,7 @@ export type ThingDefProps = {
     techLevel?: TechLevel;
     uiIconScale?: number;
     allowedArchonexusCount?: number;
+    stats?: Partial<ThingStats>;
 } & BaseDefProps
 
 export interface ThingStats extends Record<string, number | null | undefined> {
