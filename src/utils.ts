@@ -47,15 +47,14 @@ export function bindContext<T extends ContextWithoutFunctions, Fns extends Recor
 // Utility functions
 export const generateUUID = randomUUID;
 
-export const toVec = (arr: number[]) => `(${arr.join(", ")})`;
-
+export const toVec = (arr?: number[]) => arr && `(${arr.join(", ")})`;
 
 export function withDefaults<T extends Record<string, any>, U extends Partial<T>>(
-    props: T,
+    props: T | undefined,
     defaults: U
 ): T & U {
     return {
         ...defaults,
-        ...props,
+        ...props as T,
     };
 }
