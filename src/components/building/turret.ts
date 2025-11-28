@@ -1,23 +1,20 @@
-import { x, xls, xobj } from "@/xml";
+import { xls, xobj } from "@/xml";
 import { SimpleComponent } from "..";
 import { ThingDefId } from "@/defs";
 import { toVec } from "@/utils";
 
 export const TurretComponent = (props: TurretProps) => new SimpleComponent("TurretComponent", {
     required: ["CompProperties_Stunnable"],
-    props: [
-        x("thingClass", "Building_TurretGun"),
-        x("drawerType", "MapMeshAndRealTime"),
-        x("tickerType", "Normal"),
-        x("passability", "PassThroughOnly"),
-        x("placeWorkers", xls([
+    props: xobj({
+        thingClass: "Building_TurretGun",
+        drawerType: "MapMeshAndRealTime",
+        tickerType: "Normal",
+        passability: "PassThroughOnly",
+        placeWorkers: xls([
             "PlaceWorker_TurretTop",
             "PlaceWorker_ShowTurretRadius",
-        ])),
-    ],
-    setup: (def) => {
-        const building = def.getOrCreate("building");
-        building.mergeChildren(...xobj({
+        ]),
+        building: xobj({
             turretGunDef: props.turretGunDef,
             turretBurstCooldownTime: props.burstCooldownTime,
             turretBurstWarmupTime: props.burstWarmupTime,
@@ -25,8 +22,8 @@ export const TurretComponent = (props: TurretProps) => new SimpleComponent("Turr
             turretTopOffset: props.topOffset && toVec(props.topOffset),
             combatPower: props.combatPower,
             ai_combatDangerous: props.aiCombatDangerous,
-        }));
-    }
+        }),
+    }),
 });
 
 export interface TurretProps {

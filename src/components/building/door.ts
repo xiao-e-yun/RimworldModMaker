@@ -1,24 +1,18 @@
-import { x, xobj } from "@/xml";
+import { xobj } from "@/xml";
 import { SimpleComponent } from "..";
-import { ForbiddableComponent } from "../weapon";
 import { SoundDefId } from "@/defs";
+import { AltitudeLayer, DrawerType, TickerType } from "@/common";
 
 export const DoorComponent = (props?: DoorProps) => new SimpleComponent("DoorComponent", {
-    props: [
-        x("thingClass", "Building_Door"),
-        x("altitudeLayer", "DoorMoveable"),
-        x("drawerType", "RealtimeOnly"),
-        x("tickerType", "Normal"),
-        x("holdsRoof", "true"),
-        x("blockLight", "true"),
-        x("blockWind", "true"),
-    ],
-    setup: (def) => {
-        // Add forbiddable comp with allowNonPlayer
-        ForbiddableComponent({ allowNonPlayer: true }).modify(def);
-
-        const building = def.getOrCreate("building");
-        building.mergeChildren(...xobj({
+    props: xobj({
+        "thingClass": "Building_Door",
+        "altitudeLayer": AltitudeLayer.Building,
+        "drawerType": DrawerType.RealtimeOnly,
+        "tickerType": TickerType.Normal,
+        "holdsRoof": true,
+        "blockLight": true,
+        "blockWind": true,
+        "building": xobj({
             isInert: true,
             canPlaceOverWall: props?.canPlaceOverWall ?? true,
             blueprintClass: "Blueprint_Door",
@@ -28,8 +22,9 @@ export const DoorComponent = (props?: DoorProps) => new SimpleComponent("DoorCom
             soundDoorCloseManual: props?.soundDoorCloseManual,
             roamerCanOpen: props?.roamerCanOpen,
             isStuffableAirtight: props?.isStuffableAirtight,
-        }));
-    }
+        })
+    }),
+    required: ["ForbiddableComponent"]
 });
 
 export interface DoorProps {
@@ -38,6 +33,7 @@ export interface DoorProps {
     soundDoorClosePowered?: SoundDefId;
     soundDoorOpenManual?: SoundDefId;
     soundDoorCloseManual?: SoundDefId;
-    roamerCanOpen?: boolean;
     isStuffableAirtight?: boolean;
+    roamerCanOpen?: boolean;
+    openSpeed?: number;
 }

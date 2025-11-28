@@ -8,33 +8,28 @@ export const StorageComponent = (props: StorageProps) => new SimpleComponent("St
         surfaceType: "Item",
         inspectorTabs: xls(["ITab_Storage"]),
         canOverlapZones: props.canOverlapZones,
-    }),
-    setup: (def) => {
-        const building = def.getOrCreate("building");
-        building.mergeChildren(...xobj({
+        building: xobj({
             preventDeteriorationOnTop: props.preventDeteriorationOnTop,
             ignoreStoredThingsBeauty: props.ignoreStoredThingsBeauty,
             maxItemsInCell: props.maxItemsInCell,
             storageGroupTag: props.storageGroupTag,
             blueprintClass: "Blueprint_Storage",
-            fixedStorageSettings: props.fixedStorageSettings ? storageSettingsToXml(props.fixedStorageSettings) : undefined,
-            defaultStorageSettings: props.defaultStorageSettings ? storageSettingsToXml(props.defaultStorageSettings) : undefined,
-        }));
-    }
+            fixedStorageSettings: props.fixedStorageSettings && storageSettingsToXml(props.fixedStorageSettings),
+            defaultStorageSettings: props.defaultStorageSettings && storageSettingsToXml(props.defaultStorageSettings),
+        }),
+    }),
 });
 
-function storageSettingsToXml(settings: StorageSettings) {
-    return xobj({
-        priority: settings.priority,
-        filter: xobj({
-            categories: xls(settings.filter?.categories),
-            disallowedCategories: xls(settings.filter?.disallowedCategories),
-            thingDefs: xls(settings.filter?.thingDefs),
-            disallowedThingDefs: xls(settings.filter?.disallowedThingDefs),
-            specialFiltersToDisallow: xls(settings.filter?.specialFiltersToDisallow),
-        }),
-    });
-}
+const storageSettingsToXml = (settings: StorageSettings) => xobj({
+    priority: settings.priority,
+    filter: xobj({
+        categories: xls(settings.filter?.categories),
+        disallowedCategories: xls(settings.filter?.disallowedCategories),
+        thingDefs: xls(settings.filter?.thingDefs),
+        disallowedThingDefs: xls(settings.filter?.disallowedThingDefs),
+        specialFiltersToDisallow: xls(settings.filter?.specialFiltersToDisallow),
+    }),
+});
 
 export interface StorageProps {
     canOverlapZones?: boolean;

@@ -1,36 +1,30 @@
-import { x, xobj } from "@/xml";
-import { SimpleComponent } from "..";
+import { xls, xobj } from "@/xml";
+import { CompComponent, SimpleComponent } from "..";
 
 export const BedComponent = (props?: BedProps) => new SimpleComponent("BedComponent", {
-    props: [
-        x("thingClass", "Building_Bed"),
-        x("drawGUIOverlay", "true"),
-        x("defaultPlacingRot", "South"),
-        x("passability", "PassThroughOnly"),
-    ],
-    setup: (def) => {
-        // Add assignable comp
-        const comps = def.getOrCreate("comps");
-        comps.contents!.push(x("li", xobj({
-            compClass: "CompAssignableToPawn_Bed",
-        }), { Class: "CompProperties_AssignableToPawn" }));
-
-        // Add building settings
-        const building = def.getOrCreate("building");
-        building.mergeChildren(...xobj({
+    required: ["CompProperties_AssignableToPawn"],
+    props: xobj({
+        thingClass: "Building_Bed",
+        drawGUIOverlay: true,
+        defaultPlacingRot: "South",
+        passability: "PassThroughOnly",
+        building: xobj({
             bed_healPerDay: props?.healPerDay,
             bed_showSleeperBody: props?.showSleeperBody,
             bed_humanlike: props?.humanlike,
             bed_maxBodySize: props?.maxBodySize,
             bed_caravansCanUse: props?.caravansCanUse,
             bed_defaultMedical: props?.defaultMedical,
-        }));
+            buildingTags: props?.isBed !== false ? xls(["Bed"]) : undefined,
+        }),
+    }),
+});
 
-        // Add buildingTags
-        if (props?.isBed !== false) {
-            building.mergeChildren(x("buildingTags", [x("li", "Bed")]));
-        }
-    }
+export const BedAssignableComponent = () => new CompComponent("CompProperties_AssignableToPawn", {
+    isExtends: true,
+    props: xobj({
+        compClass: "CompAssignableToPawn_Bed",
+    }),
 });
 
 export interface BedProps {
@@ -40,5 +34,5 @@ export interface BedProps {
     maxBodySize?: number;
     caravansCanUse?: boolean;
     defaultMedical?: boolean;
-    isBed?: boolean; // Add "Bed" buildingTag, default true
+    isBed?: boolean;
 }
