@@ -24,7 +24,7 @@ export const DoorComponent = (props?: DoorProps) => new SimpleComponent("DoorCom
             isStuffableAirtight: props?.isStuffableAirtight,
         })
     }),
-    required: ["ForbiddableComponent"]
+    required: ["CompProperties_Forbiddable"]
 });
 
 export interface DoorProps {
