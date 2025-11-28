@@ -1,7 +1,7 @@
 import { Component, GraphicProps } from "@/components";
 import { ContextWithoutFunctions, withDefaults, x, xls, xobj, xstats } from "@/utils";
 import { DefNode, EffecterDefId, registerDef, SoundDefId, TerrainAffordanceDefId, ThingDefId, ThingDefProps, ThingStats } from "..";
-import { DesignationCategoryDefId, DrawStyleCategoryDefId, StuffCategoryDefId } from "@/defs/vanilla";
+import { DesignationCategoryDefId, DrawStyleCategoryDefId } from "@/defs/vanilla";
 import { omit } from "lodash-es";
 import { AltitudeLayer, TickerType } from "@/common";
 
@@ -39,10 +39,9 @@ export const defineBuilding = (context: ContextWithoutFunctions, props: Building
         name: props.name,
         label: props.label,
         contents: [
-            ...xobj(omit($props, ["name", "label", "settings", "size", "uiIconPath", "uiIconPathsStuff", "stuffCategories", "replaceTags"])),
+            ...xobj(omit($props, ["name", "label", "settings", "size", "uiIconPath", "uiIconPathsStuff", "replaceTags"])),
             x("size", $props.size ? `(${$props.size[0]}, ${$props.size[1]})` : undefined),
             x("uiIconPath", $props.uiIconPath),
-            x("stuffCategories", xls($props.stuffCategories)),
             x("replaceTags", xls($props.replaceTags)),
             x("building", xobj({
                 ...$props.settings as Record<string, unknown>,
@@ -75,8 +74,6 @@ export interface BuildingProps extends ThingDefProps {
     passability?: "Impassable" | "PassThroughOnly" | "Standable";
     fillPercent?: number;
     coversFloor?: boolean;
-    costStuffCount?: number;
-    stuffCategories?: StuffCategoryDefId[];
     useStuffTerrainAffordance?: boolean;
     designationCategory?: DesignationCategoryDefId;
     drawStyleCategory?: DrawStyleCategoryDefId;
