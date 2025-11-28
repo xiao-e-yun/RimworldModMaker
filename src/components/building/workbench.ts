@@ -1,16 +1,17 @@
-import { x, xls, xobj } from "@/xml";
+import { xls, xobj } from "@/xml";
 import { SimpleComponent } from "..";
 import { RecipeDefId } from "@/defs";
+import { toVec } from "@/utils";
 
 export const WorkbenchComponent = (props: WorkbenchProps) => new SimpleComponent("WorkbenchComponent", {
-    props: [
-        x("thingClass", props.thingClass ?? "Building_WorkTable"),
-        x("hasInteractionCell", "True"),
-        x("interactionCellOffset", `(${props.interactionCellOffset?.join(",") ?? "0,0,-1"})`),
-        x("surfaceType", "Item"),
-        x("inspectorTabs", [x("li", "ITab_Bills")]),
-        x("recipes", xls(props.recipes)),
-    ],
+    props: xobj({
+        thingClass: props.thingClass ?? "Building_WorkTable",
+        hasInteractionCell: !!props.interactionCell,
+        interactionCellOffset: getInteractionCellOffset(props),
+        surfaceType: "Item",
+        inspectorTabs: xls(["ITab_Bills"]),
+        recipes: xls(props.recipes),
+    }),
     setup: (def) => {
         const building = def.getOrCreate("building");
         building.mergeChildren(...xobj({
@@ -22,9 +23,15 @@ export const WorkbenchComponent = (props: WorkbenchProps) => new SimpleComponent
     }
 });
 
+const getInteractionCellOffset = (props: WorkbenchProps) => {
+    if (props.interactionCell === false) return undefined;
+    const [x, z] = props.interactionCell ?? [0, -1];
+    return toVec([x, 0, z]);
+}
+
 export interface WorkbenchProps {
     thingClass?: "Building_WorkTable" | "Building_WorkTable_HeatPush";
-    interactionCellOffset?: [number, number, number];
+    interactionCell?: [number, number] | false;
     isMealSource?: boolean;
     heatPerTickWhileWorking?: number;
     unpoweredWorkTableWorkSpeedFactor?: number;
