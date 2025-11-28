@@ -20,13 +20,6 @@ export const BedComponent = (props?: BedProps) => new SimpleComponent("BedCompon
     }),
 });
 
-export const BedAssignableComponent = () => new CompComponent("CompProperties_AssignableToPawn", {
-    isExtends: true,
-    props: xobj({
-        compClass: "CompAssignableToPawn_Bed",
-    }),
-});
-
 export interface BedProps {
     healPerDay?: number;
     showSleeperBody?: boolean;
@@ -35,4 +28,34 @@ export interface BedProps {
     caravansCanUse?: boolean;
     defaultMedical?: boolean;
     isBed?: boolean;
+}
+
+export const AssignableComponent = (props: AssignableProps = {}) => new CompComponent("CompProperties_AssignableToPawn", {
+    isExtends: true,
+    props: xobj({
+        compClass: props.compClass ?? "CompAssignableToPawn_Bed",
+        maxAssignedPawnsCount: props.maxAssignedPawnsCount,
+        drawAssignmentOverlay: props.drawAssignmentOverlay,
+        drawUnownedAssignmentOverlay: props.drawUnownedAssignmentOverlay,
+        noAssignablePawnsDesc: props.noAssignablePawnsDesc,
+    }),
+});
+
+export interface AssignableProps {
+    /** The comp class to use. 
+     * @default "CompAssignableToPawn_Bed" 
+     */
+    compClass?: "CompAssignableToPawn_Bed" | "CompAssignableToPawn_Grave" | "CompAssignableToPawn_Throne" | "CompAssignableToPawn_MeditationSpot";
+    /** Maximum number of pawns that can be assigned. For beds, this is auto-calculated from bed size. */
+    maxAssignedPawnsCount?: number;
+    /** Whether to draw the assignment overlay. 
+     * @default true 
+     */
+    drawAssignmentOverlay?: boolean;
+    /** Whether to draw unowned assignment overlay. 
+     * @default true 
+     */
+    drawUnownedAssignmentOverlay?: boolean;
+    /** Description shown when no pawns can be assigned. */
+    noAssignablePawnsDesc?: string;
 }
